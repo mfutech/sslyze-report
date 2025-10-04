@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Ping page</h1>
-    <p>status : -{{ msg }}-</p>
+    <p>status : <button type="button" class="btn btn-primary">{{ msg }}</button></p>
   </div>
 </template>
 
