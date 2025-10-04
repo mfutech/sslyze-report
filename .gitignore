@@ -1,5 +1,5 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+__pycache__
 *.py[cod]
 *$py.class
 
@@ -152,3 +152,11 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+
+# actual config files
+config.ini
+
+
+# data files
+data/*

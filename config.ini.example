@@ -1,0 +1,15 @@
+#
+# Configuration file for sslyze-report
+#
+
+[hostlist]
+www.google.com : 443
+www.unil.ch : 443
+unkown.local : 443
+
+
+[sqlite]
+db_path = data/sslyze_report.db
+
+[logging]
+error_log = data/error.log
