@@ -116,12 +116,12 @@ def main() -> None:
                         cert_result.subject,
                         cert_result.public_key_type,
                         cert_result.not_valid_after,
-                        ", ".join(tls_result.ssl2_accepted_ciphers),
-                        ", ".join(tls_result.ssl3_accepted_ciphers),
-                        ", ".join(tls_result.tls1_0_accepted_ciphers),
-                        ", ".join(tls_result.tls1_1_accepted_ciphers),
-                        ", ".join(tls_result.tls1_2_accepted_ciphers),
-                        ", ".join(tls_result.tls1_3_accepted_ciphers),
+                        tls_result.ssl2_accepted_ciphers_str(),
+                        tls_result.ssl3_accepted_ciphers_str(),
+                        tls_result.tls1_0_accepted_ciphers_str(),
+                        tls_result.tls1_1_accepted_ciphers_str(),
+                        tls_result.tls1_2_accepted_ciphers_str(),
+                        tls_result.tls1_3_accepted_ciphers_str(),
                     ),
                 )
                 db.commit()

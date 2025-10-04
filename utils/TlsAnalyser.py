@@ -31,7 +31,26 @@ class TlsResult:
         self.tls1_2_accepted_ciphers = []
         self.tls1_3_accepted_ciphers = []
         self.forbidden_ciphers = []
+        self.supported_ciphers_str = []
         self.weak_ciphers = []
+
+    def ssl2_accepted_ciphers_str (self):
+        return ", ".join(self.ssl2_accepted_ciphers)
+    
+    def ssl3_accepted_ciphers_str (self):
+        return ", ".join(self.ssl3_accepted_ciphers)    
+    def tls1_0_accepted_ciphers_str (self):
+        return ", ".join(self.tls1_0_accepted_ciphers)
+    
+    def tls1_1_accepted_ciphers_str (self):
+        return ", ".join(self.tls1_1_accepted_ciphers)
+    
+    def tls1_2_accepted_ciphers_str (self):
+        return ", ".join(self.tls1_2_accepted_ciphers)
+    
+    def tls1_3_accepted_ciphers_str (self):
+        return ", ".join(self.tls1_3_accepted_ciphers)
+
 
 
 class TlsAnalyser:
@@ -43,10 +62,10 @@ class TlsAnalyser:
         self.server_scan_result = server_scan_result
         tls_result = TlsResult()
 
-        tls_result.ssl2_enabled, self.ssl2_accepted_ciphers = self._generic_get_results(
+        tls_result.ssl2_enabled, tls_result.ssl2_accepted_ciphers = self._generic_get_results(
             server_scan_result.scan_result.ssl_2_0_cipher_suites
         )
-        tls_result.ssl3_enabled, self.ssl3_accepted_ciphers = self._generic_get_results(
+        tls_result.ssl3_enabled, tls_result.ssl3_accepted_ciphers = self._generic_get_results(
             server_scan_result.scan_result.ssl_3_0_cipher_suites
         )
         tls_result.tls1_0_enabled, self.tls1_0_accepted_ciphers = (
@@ -54,17 +73,17 @@ class TlsAnalyser:
                 server_scan_result.scan_result.tls_1_0_cipher_suites
             )
         )
-        tls_result.tls1_1_enabled, self.tls1_1_accepted_ciphers = (
+        tls_result.tls1_1_enabled, tls_result.tls1_1_accepted_ciphers = (
             self._generic_get_results(
                 server_scan_result.scan_result.tls_1_1_cipher_suites
             )
         )
-        tls_result.tls1_2_enabled, self.tls1_2_accepted_ciphers = (
+        tls_result.tls1_2_enabled, tls_result.tls1_2_accepted_ciphers = (
             self._generic_get_results(
                 server_scan_result.scan_result.tls_1_2_cipher_suites
             )
         )
-        tls_result.tls1_3_enabled, self.tls1_3_accepted_ciphers = (
+        tls_result.tls1_3_enabled, tls_result.tls1_3_accepted_ciphers = (
             self._generic_get_results(
                 server_scan_result.scan_result.tls_1_3_cipher_suites
             )
