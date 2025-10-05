@@ -52,7 +52,6 @@ def list_certificates():
             'tls1_3': row[11],
             'not_after': row[12],
             'weak_algo': row[13]
-
         }
         certificates.append(certificate)
     return jsonify({
