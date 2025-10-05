@@ -10,6 +10,7 @@ import configparser
 from email.mime import message
 import sqlite3
 import argparse
+from datetime import datetime
 
 CONFIGFILE = "config.ini"
 DEFAULT_DB = "data/sslyze_report.db"
@@ -50,6 +51,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run sslyze scans and store results in a database"
     )
+
+    # define scan id
+    SCANID = "SCANID-" + datetime.now().strftime("%Y%m%d%-H%M%S")
+    db.execute("INSERT INTO scans (scanid) VALUES (?)", (SCANID,))
+    db.commit()
+
 
     # First create the scan requests for each server that we want to scan
 
@@ -108,7 +115,8 @@ def main() -> None:
             cert_scanner = CertAnalyser(db_log_err)
             for cert_result in cert_scanner.analyze_results(server_scan_result):
                 db.execute(
-                    "INSERT INTO certificates (hostname, port, serial_number, subject, public_key_type, not_after, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3)  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO certificates (hostname, port, serial_number, subject, public_key_type, not_after, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, scan_id) " +
+                     "VALUES                  (?,        ?,    ?,             ?,       ?,               ?,         ?,     ?,     ?,      ?,      ?,      ?,      ?)",
                     (
                         server_scan_result.server_location.hostname,
                         server_scan_result.server_location.port,
@@ -122,6 +130,7 @@ def main() -> None:
                         tls_result.tls1_1_accepted_ciphers_str(),
                         tls_result.tls1_2_accepted_ciphers_str(),
                         tls_result.tls1_3_accepted_ciphers_str(),
+                        SCANID
                     ),
                 )
                 db.commit()

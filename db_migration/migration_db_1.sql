@@ -1,7 +1,8 @@
+
+
 CREATE TABLE scans (
     date timestamp default current_timestamp,
-    scanid text,
-
+    scanid text
 );
 
 alter table certificates add column  scan_id text  ; 
