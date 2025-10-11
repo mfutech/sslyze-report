@@ -24,12 +24,32 @@ from sslyze import (
     ServerNetworkLocation,
     ScanCommandAttemptStatusEnum,
     ServerScanStatusEnum,
+    ServerScanResultAsJson,
+    ServerScanResult
 )
 from sslyze.errors import ServerHostnameCouldNotBeResolved
 from sslyze.scanner.scan_command_attempt import ScanCommandAttempt
+
+from datetime import datetime
+
 from utils.ScanError import ScanError
 from utils.TlsAnalyser import TlsResult, TlsAnalyser
 from utils.CertAnalyser import CertResult, CertAnalyser
+
+def result_to_json(
+    result: ServerScanResult,
+    date_scans_started: datetime,
+    date_scans_completed: datetime,
+) -> str:
+    """Convert a ServerScanResult to its JSON representation."""
+    json_output = SslyzeOutputAsJson(
+        # server_scan_results=ServerScanResultAsJson.model_validate(result),
+        server_scan_results=(result),
+        invalid_server_strings=[],  # Not needed here - specific to the CLI interface
+        date_scans_started=date_scans_started,
+        date_scans_completed=date_scans_completed,
+    )
+    return json_output.model_dump_json()
 
 
 def main() -> None:
@@ -73,10 +93,12 @@ def main() -> None:
 
         # Then queue all the scans
         scanner = Scanner()
+        scan_started = datetime.now()
         scanner.queue_scans([scan_request])
 
         # And retrieve and process the results for each server
         for server_scan_result in scanner.get_results():
+            scan_completed = datetime.now()
             db_log_err.log(
                 "Scan completed",
                 server_scan_result.server_location.hostname,
@@ -111,6 +133,13 @@ def main() -> None:
             tls_scanner = TlsAnalyser(db_log_err)
             tls_result = tls_scanner.analyze_results(server_scan_result)
 
+            # create a json version of the result
+            json_result = result_to_json(
+                [ server_scan_result ],
+                scan_started,
+                scan_completed
+            )
+
             # Process the result of the certificate info scan command
             cert_scanner = CertAnalyser(db_log_err)
             for cert_result in cert_scanner.analyze_results(server_scan_result):
@@ -131,10 +160,23 @@ def main() -> None:
                         tls_result.tls1_2_accepted_ciphers_str(),
                         tls_result.tls1_3_accepted_ciphers_str(),
                         SCANID
-                    ),
+                    )
                 )
                 db.commit()
-
+                db.execute("DELETE FROM host_details WHERE host = ? and port = ?", (server_scan_result.server_location.hostname, server_scan_result.server_location.port))
+                db.commit()
+                db.execute("INSERT INTO host_details (host, port, scan_started, scan_completed, scan_result_json, scan_id) " +
+                           "VALUES                           (?,    ?,      ?,            ?,              ?,                ?      )",
+                           (
+                               server_scan_result.server_location.hostname,
+                               server_scan_result.server_location.port,
+                               scan_started,
+                               scan_completed,
+                               json_result,
+                               SCANID
+                           ),
+                           )
+                db.commit()
     error_log.close()
     db.close()
 

@@ -1,10 +1,11 @@
 <template>
  <div class="container">
     <div class="row">
-      <div class="col-sm-10">
+      <div class="col-sm-12">
         <h1>Certificates</h1>
         <hr><br><br>
         <button type="button" class="btn btn-success btn-sm">Add Book</button>
+        <a href="/Ping" type="button" class="btn btn-primary btn-sm">Ping</a>
         <br><br>
         <table class="table table-hover">
           <thead>
@@ -15,12 +16,6 @@
                 <th scope="col">serial_number</th>
                 <th scope="col">subject</th>
                 <th scope="col">public_key_type</th>
-                <th scope="col">sslv2</th>
-                <th scope="col">sslv3</th>
-                <th scope="col">tls1_0</th>
-                <th scope="col">tls1_1</th>
-                <th scope="col">tls1_2</th>
-                <th scope="col">tls1_3</th>
                 <th scope="col">not_after</th>
                 <th scope="col">weak_algo</th>
                 <th></th> 
@@ -34,18 +29,12 @@
               <td>{{ cert.serial_number }}</td>
               <td>{{ cert.subject }}</td>
               <td>{{ cert.public_key_type }}</td>
-              <td>{{ cert.sslv2 }}</td>
-              <td>{{ cert.sslv3 }}</td>
-              <td>{{ cert.tls1_0 }}</td>
-              <td>{{ cert.tls1_1 }}</td>
-              <td>{{ cert.tls1_2 }}</td>
-              <td>{{ cert.tls1_3 }}</td>
               <td>{{ cert.not_after }}</td>
               <td>{{ cert.weak_algo }}</td>
               <td>
                 <div class="btn-group" role="group">
-                  <button type="button" class="btn btn-warning btn-sm">Update</button>
-                  <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                  <router-link :to="{ name: 'hostview', params: { host: cert.hostname, port: cert.port }}">View</router-link>
+                  <!-- <a href="/certificates/{{ cert.serial_number }}/view" type="button" class="btn btn-warning btn-sm">View</a> -->
                 </div>
               </td>
             </tr>
@@ -67,7 +56,7 @@ export default {
   },
   methods: {
     fetchCertificates() {
-      const path = 'http://localhost:5000/certificates';
+      const path = '/api/certificates';
       axios.get(path)
         .then((response) => {
           if (response.data.status === 'success') {

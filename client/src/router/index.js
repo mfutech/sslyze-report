@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import Certificates from '../components/Certificates.vue'
+import CertificatesList from '../components/CertificatesList.vue'
+import HostView from '../components/HostView.vue'
 import Ping from '../components/Ping.vue'
 
 const router = createRouter({
@@ -8,8 +9,13 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'Certificates',
-      component: Certificates,
+      name: 'home',
+      component: CertificatesList,
+    },
+    {
+      path: '/host/:host/:port',
+      name: 'hostview',
+      component: HostView
     },
     {
       path: '/about',
