@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import CertificatesList from '../components/CertificatesList.vue'
-import HostView from '../components/HostView.vue'
-import Ping from '../components/Ping.vue'
+// import HomeView from '../views/HomeView.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,12 +8,17 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: CertificatesList,
+      component: () => import('../components/CertificatesList.vue'),
     },
     {
       path: '/host/:host/:port',
       name: 'hostview',
-      component: HostView
+      component: () => import('../components/HostView.vue')
+    },
+    {
+      path: '/certificate/:host/:port',
+      name: 'certificateview',
+      component: () => import('../components/CertificateView.vue'),
     },
     {
       path: '/about',
@@ -28,7 +31,7 @@ const router = createRouter({
     {
       path: '/ping',
       name: 'ping',
-      component: Ping,
+      component: () => import('../components/Ping.vue'),
     }
   ],
 })

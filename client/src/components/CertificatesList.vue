@@ -48,7 +48,7 @@
 <script>
 import axios from 'axios';
 export default {
-  name: 'Certificates',
+  name: 'CertificatesList',
   data() {
     return {
       certificates: [],

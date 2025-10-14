@@ -6,10 +6,8 @@
         <hr><br><br>
         <router-link :to="{ name: 'home' }" type="button" class="btn btn-success btn-sm">Back to list</router-link>
         <br><br>
-        <h1>{{  host  }}:{{ port }}</h1>
+        <h1>{{ subject }} - {{  serial }}</h1>
         <ul>
-          <li>Host: {{ host }}</li>
-          <li>Port: {{ port }}</li>
           <li>Scan Started: {{ scan_started }}</li>
           <li>Scan Completed: {{ scan_completed }}</li>
           <li>Scan ID: {{ scan_id }}</li>
@@ -36,8 +34,7 @@ export default {
   name: 'HostView',
   data() {
     return {
-      host: this.$route.params.host,
-      port: this.$route.params.port,
+      cert_id: this.$route.params.cert_id,
       date: "",
       scan_started: "",
       scan_completed: "",
@@ -48,8 +45,8 @@ export default {
     };
   },
   methods: {
-    fetchHostDetails() {
-      const path = '/api/host/' + this.host + '/' + this.port;
+    fetchCertificateDetails() {
+      const path = '/api/certificate/' + this.cert_id;
       axios.get(path)
         .then((response) => {
           if (response.data.status === 'success') {
