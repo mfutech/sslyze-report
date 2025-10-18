@@ -33,6 +33,7 @@ class TlsResult:
         self.forbidden_ciphers = []
         self.supported_ciphers_str = []
         self.weak_ciphers = []
+        self.uses_weak_algorithm = True
 
     def ssl2_accepted_ciphers_str (self):
         return ", ".join(self.ssl2_accepted_ciphers)
