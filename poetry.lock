@@ -145,7 +145,7 @@ python-versions = ">=3.8"
 
 [[package]]
 name = "pydantic"
-version = "2.11.9"
+version = "2.12.3"
 description = "Data validation using Python type hints"
 category = "main"
 optional = false
@@ -153,9 +153,9 @@ python-versions = ">=3.9"
 
 [package.dependencies]
 annotated-types = ">=0.6.0"
-pydantic-core = "2.33.2"
-typing-extensions = ">=4.12.2"
-typing-inspection = ">=0.4.0"
+pydantic-core = "2.41.4"
+typing-extensions = ">=4.14.1"
+typing-inspection = ">=0.4.2"
 
 [package.extras]
 email = ["email-validator (>=2.0.0)"]
@@ -163,14 +163,14 @@ timezone = ["tzdata"]
 
 [[package]]
 name = "pydantic-core"
-version = "2.33.2"
+version = "2.41.4"
 description = "Core functionality for Pydantic validation and serialization"
 category = "main"
 optional = false
 python-versions = ">=3.9"
 
 [package.dependencies]
-typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
+typing-extensions = ">=4.14.1"
 
 [[package]]
 name = "sslyze"

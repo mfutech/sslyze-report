@@ -20,89 +20,136 @@ db_filename = config.get("sqlite", "db_path", fallback=DEFAULT_DB)
 
 
 # instantiate the app
-app = Flask(__name__,
-            static_url_path='/', 
-            static_folder='./client/dist',
+app = Flask(
+    __name__,
+    static_url_path="/",
+    static_folder="./client/dist",
 )
 
 app.config.from_object(__name__)
 
 # enable CORS
-CORS(app, resources={r'/*': {'origins': '*'}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # list certifcates
 
-@app.route('/api/certificates', methods=['GET'])
+
+@app.route("/api/certificates", methods=["GET"])
 def list_certificates():
     db = sqlite3.connect(db_filename)
     db.row_factory = sqlite3.Row
 
     cursor = db.cursor()
-    cursor.execute("""SELECT max(date) as last_scan, hostname, port, serial_number, subject, public_key_type, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, not_after, weak_algo  
+    cursor.execute(
+        """SELECT max(date) as last_scan, serial_number, subject, public_key_type, not_after, weak_algo  
                    FROM certificates
-                   GROUP BY hostname, port, serial_number, subject, public_key_type, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, not_after, weak_algo 
-                   """)
+                   GROUP BY serial_number, subject, public_key_type, not_after, weak_algo 
+                   """
+    )
     rows = cursor.fetchall()
     certificates = []
     for row in rows:
         certificate = {
-            'date': row['last_scan'],
-            'hostname': row['hostname'], 
-            'port': row['port'],
-            'serial_number': row['serial_number'],
-            'subject': row['subject'],
-            'public_key_type': row['public_key_type'],
-            'sslv2': row['sslv2'],
-            'sslv3': row['sslv3'],
-            'tls1_0': row['tls1_0'],
-            'tls1_1': row['tls1_1'],
-            'tls1_2': row['tls1_2'],
-            'tls1_3': row['tls1_3'],
-            'not_after': row['not_after'],
-            'weak_algo': row['weak_algo']
+            "date": row["last_scan"],
+            "serial_number": row["serial_number"],
+            "subject": row["subject"],
+            "public_key_type": row["public_key_type"],
+            "not_after": row["not_after"],
+            "weak_algo": row["weak_algo"],
         }
         certificates.append(certificate)
-    return jsonify({
-        'status': 'success',
-        'certificates': certificates}
-        )
+    return jsonify({"status": "success", "certificates": certificates})
 
 
-
-@app.route('/api/host/<host>/<port>', methods=['GET'])
+@app.route("/api/host/<host>/<port>", methods=["GET"])
 def view_host(host, port):
     db = sqlite3.connect(db_filename)
     db.row_factory = sqlite3.Row
 
     cursor = db.cursor()
-    cursor.execute("""SELECT date, host, port, scan_started, scan_completed, scan_result_json, scan_id
-                   FROM host_details
-                   WHERE host = ? AND port = ?
-                   """, (host, port))
-    row = cursor.fetchone()
-    host_details = {
-            'date': row['date'],
-            'host': row['host'],
-            'port': row['port'],
-            'scan_started': row['scan_started'],
-            'scan_completed': row['scan_completed'],
-            'scan_result_json': row['scan_result_json'],
-            'scan_id': row['scan_id']
-        }
-    return jsonify({
-        'status': 'success',
-        'hostDetails': host_details}
-    )
 
+    cursor.execute(
+        """SELECT date, host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, scan_id, certificate_serial_number, weak_algo 
+                   FROM hosts
+                   WHERE host = ? AND port = ?
+                   ORDER BY date DESC
+                   """,
+        (host, port),
+    )
+    rows = cursor.fetchall()
+    scans = []
+    for row in rows:
+        scan = {
+            "date": row["date"],
+            "sslv2": row["sslv2"],
+            "sslv3": row["sslv3"],
+            "tls1_0": row["tls1_0"],
+            "tls1_1": row["tls1_1"],
+            "tls1_2": row["tls1_2"],
+            "tls1_3": row["tls1_3"],
+            "scan_id": row["scan_id"],
+            "certificate_serial_number": row["certificate_serial_number"],
+            "weak_algo": row["weak_algo"],
+        }
+        scans.append(scan)
+    return jsonify({"status": "success", "host": host, "port": port, "scans": scans})
+
+
+@app.route("/api/certificate/<cert_id>", methods=["GET"])
+def view_certificate(cert_id):
+    db = sqlite3.connect(db_filename)
+    db.row_factory = sqlite3.Row
+
+    cursor = db.cursor()
+    cursor.execute(
+        """SELECT max(date) as last_scan, serial_number, subject, public_key_type, not_after, weak_algo  
+                   FROM certificates
+                   WHERE serial_number = ?
+                   GROUP BY serial_number, subject, public_key_type, not_after, weak_algo 
+                   """,
+        (cert_id,),
+    )
+    row = cursor.fetchone()
+    certificate = {
+        "date": row["last_scan"],
+        "serial_number": row["serial_number"],
+        "subject": row["subject"],
+        "public_key_type": row["public_key_type"],
+        "not_after": row["not_after"],
+        "weak_algo": row["weak_algo"],
+    }
+    cursor.execute(
+        """SELECT max(date) as last_scan, host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, weak_algo
+                   FROM hosts
+                   WHERE certificate_serial_number = ?
+                   GROUP by host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, weak_algo
+                   """,
+        (cert_id,),
+    )
+    rows = cursor.fetchall()
+    hosts = []
+    for row in rows:
+        host = {
+            "host": row["host"],
+            "port": row["port"],
+            "sslv2": row["sslv2"],
+            "sslv3": row["sslv3"],
+            "tls1_0": row["tls1_0"],
+            "tls1_1": row["tls1_1"],
+            "tls1_2": row["tls1_2"],
+            "tls1_3": row["tls1_3"],
+            "certificate_serial_number": row["certificate_serial_number"],
+            "weak_algo": row["weak_algo"],
+        }
+        hosts.append(host)
+    return jsonify({"status": "success", "certificate": certificate, "hosts": hosts})
 
 
 # sanity check route
-@app.route('/api/ping', methods=['GET'])
+@app.route("/api/ping", methods=["GET"])
 def ping_pong():
-    return jsonify('pong!')
+    return jsonify("pong!")
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()

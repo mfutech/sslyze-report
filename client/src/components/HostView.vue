@@ -1,30 +1,46 @@
 <template>
- <div class="container">
+  <div class="container">
     <div class="row">
       <div class="col-sm-12">
-        <h1>Certificates</h1>
+        <h1>Host Scans</h1>
         <hr><br><br>
         <router-link :to="{ name: 'home' }" type="button" class="btn btn-success btn-sm">Back to list</router-link>
         <br><br>
-        <h1>{{  host  }}:{{ port }}</h1>
-        <ul>
-          <li>Host: {{ host }}</li>
-          <li>Port: {{ port }}</li>
-          <li>Scan Started: {{ scan_started }}</li>
-          <li>Scan Completed: {{ scan_completed }}</li>
-          <li>Scan ID: {{ scan_id }}</li>
-        </ul>
-        <h2>connectivity result</h2>
-        <ul>
-          <li>highest_tls_version_supported: {{ scan_results.connectivity_result.highest_tls_version_supported }}</li>
-          <li>cipher_suite_supported: {{ scan_results.connectivity_result.cipher_suite_supported }}</li>
-          <li>client_auth_requirement: {{ scan_results.connectivity_result.client_auth_requirement }}</li>
-          <li>supports_ecdh_key_exchange: {{ scan_results.connectivity_result.supports_ecdh_key_exchange }}</li>
-        </ul>
- 
-        <h2>Scan Results</h2>
-        <pre>{{ scan_results }}</pre>
+        <h1>{{ host }}:{{ port }}</h1>
 
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Scan Date</th>
+              <th scope="col">SSLv2</th>
+              <th scope="col">SSLv3</th>
+              <th scope="col">TLS 1.0</th>
+              <th scope="col">TLS 1.1</th>
+              <th scope="col">TLS 1.2</th>
+              <th scope="col">TLS 1.3</th>
+              <th scope="col">Certificate Serial Number</th>
+              <th scope="col">Weak Algorithm</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(scan, index) in scans" :key="index">
+              <td>{{ scan.date }}</td>
+              <td>{{ scan.sslv2 }}</td>
+              <td>{{ scan.sslv3 }}</td>
+              <td>{{ scan.tls1_0 }}</td>
+              <td>{{ scan.tls1_1 }}</td>
+              <td>{{ scan.tls1_2 }}</td>
+              <td>{{ scan.tls1_3 }}</td>
+              <td>
+                <router-link
+                  :to="{ name: 'certificateview', params: { cert_serial: scan.certificate_serial_number } }">{{
+                    scan.certificate_serial_number }}</router-link>
+
+              </td>
+              <td>{{ scan.weak_algo }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -38,13 +54,7 @@ export default {
     return {
       host: this.$route.params.host,
       port: this.$route.params.port,
-      date: "",
-      scan_started: "",
-      scan_completed: "",
-      json: {},
-      scan_id: "",
-      hostDetails: {},
-      scan_results: {},
+      scans: [],
     };
   },
   methods: {
@@ -53,15 +63,9 @@ export default {
       axios.get(path)
         .then((response) => {
           if (response.data.status === 'success') {
-            this.hostDetails = response.data.hostDetails;
-            this.host = response.data.hostDetails.host;
-            this.port = response.data.hostDetails.port;
-            this.date = response.data.hostDetails.date;
-            this.scan_started = response.data.hostDetails.scan_started;
-            this.scan_completed = response.data.hostDetails.scan_completed;
-            this.scan_id = response.data.hostDetails.scan_id;
-            this.json = JSON.parse(response.data.hostDetails.scan_result_json);
-            this.scan_results = this.json.server_scan_results[0];
+            this.scans = response.data.scans;
+            this.host = response.data.host;
+            this.port = response.data.port;
           } else {
             console.error('Failed to fetch host details');
           }
@@ -76,4 +80,3 @@ export default {
   },
 };
 </script>
-

@@ -16,7 +16,7 @@ const router = createRouter({
       component: () => import('../components/HostView.vue')
     },
     {
-      path: '/certificate/:host/:port',
+      path: '/certificate/:cert_serial',
       name: 'certificateview',
       component: () => import('../components/CertificateView.vue'),
     },

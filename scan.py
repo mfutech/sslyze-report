@@ -72,7 +72,7 @@ def main() -> None:
         description="Run sslyze scans and store results in a database"
     )
 
-    # define scan id
+    # define scan id & record it
     SCANID = "SCANID-" + datetime.now().strftime("%Y%m%d%-H%M%S")
     db.execute("INSERT INTO scans (scanid) VALUES (?)", (SCANID,))
     db.commit()
@@ -140,19 +140,30 @@ def main() -> None:
                 scan_completed
             )
 
+            ## store json result 
+            db.execute("INSERT INTO scan_details (host, port, scan_started, scan_completed , scan_result_json, scan_id) " +
+                        "VALUES                   (?,    ?,    ?,            ?,               ?,                ?      )",
+                    (
+                        server_scan_result.server_location.hostname,
+                        server_scan_result.server_location.port,
+                        scan_started,
+                        scan_completed,
+                        json_result,
+                        SCANID
+                    )
+                )
+            db.commit()
+
             # Process the result of the certificate info scan command
             cert_scanner = CertAnalyser(db_log_err)
             for cert_result in cert_scanner.analyze_results(server_scan_result):
                 db.execute(
-                    "INSERT INTO certificates (hostname, port, serial_number, subject, public_key_type, not_after, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, scan_id) " +
-                     "VALUES                  (?,        ?,    ?,             ?,       ?,               ?,         ?,     ?,     ?,      ?,      ?,      ?,      ?)",
+                    "INSERT INTO hosts (host, port, certificate_serial_number, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, scan_id) " +
+                     "VALUES           (?,    ?,    ?,                         ?,     ?,     ?,      ?,      ?,      ?,      ?      )",
                     (
                         server_scan_result.server_location.hostname,
                         server_scan_result.server_location.port,
                         f"{cert_result.serial_number}",
-                        cert_result.subject,
-                        cert_result.public_key_type,
-                        cert_result.not_valid_after,
                         tls_result.ssl2_accepted_ciphers_str(),
                         tls_result.ssl3_accepted_ciphers_str(),
                         tls_result.tls1_0_accepted_ciphers_str(),
@@ -163,20 +174,19 @@ def main() -> None:
                     )
                 )
                 db.commit()
-                db.execute("DELETE FROM host_details WHERE host = ? and port = ?", (server_scan_result.server_location.hostname, server_scan_result.server_location.port))
+                db.execute("INSERT INTO certificates (serial_number, subject, public_key_type, not_after, parent_certificate_serial_number, scan_id) " +
+                            "VALUES                  (?,             ?,       ?,               ?,         ?                               , ?      )",
+                        (
+                            f"{cert_result.serial_number}",  
+                            cert_result.subject,
+                            cert_result.public_key_type,
+                            cert_result.not_valid_after,
+                            "unknown",
+                            SCANID
+                        )
+                )
                 db.commit()
-                db.execute("INSERT INTO host_details (host, port, scan_started, scan_completed, scan_result_json, scan_id) " +
-                           "VALUES                           (?,    ?,      ?,            ?,              ?,                ?      )",
-                           (
-                               server_scan_result.server_location.hostname,
-                               server_scan_result.server_location.port,
-                               scan_started,
-                               scan_completed,
-                               json_result,
-                               SCANID
-                           ),
-                           )
-                db.commit()
+  
     error_log.close()
     db.close()
 
