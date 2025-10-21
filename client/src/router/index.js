@@ -32,6 +32,11 @@ const router = createRouter({
       path: '/ping',
       name: 'ping',
       component: () => import('../components/Ping.vue'),
+    },
+    {
+      path: '/datatable',
+      name: 'datatable',
+      component: () => import('../components/datatable.vue'),
     }
   ],
 })

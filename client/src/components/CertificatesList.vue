@@ -7,7 +7,7 @@
         <button type="button" class="btn btn-success btn-sm">Add Book</button>
         <a href="/Ping" type="button" class="btn btn-primary btn-sm">Ping</a>
         <br><br>
-        <table class="table table-hover">
+        <DataTable class="table table-hover">
           <thead>
             <tr>
               <th scope="col">date</th>
@@ -36,7 +36,24 @@
               </td>
             </tr>
           </tbody>
-        </table>
+        </DataTable>
+
+        <hr>
+        <DataTable class="display">
+          <thead>
+            <tr>
+              <th>First</th>
+              <th>Second</th>
+            </tr>
+          </thead>
+        </DataTable>
+        <hr>
+        </hr>
+        <DataTable ajax="/api/certificates" class="display">
+        </DataTable>
+        <hr>
+        data table with data prop
+        <DataTable :options="options" :data="others" class="display nowrap" />
       </div>
     </div>
   </div>
@@ -44,8 +61,17 @@
 
 <script>
 import axios from 'axios';
+import * as bootstrap from 'bootstrap';
+import DataTable from 'datatables.net-vue3'
+import DataTablesCore from 'datatables.net-bs5';
+import 'datatables.net-responsive';
+import 'datatables.net-select';
+
+DataTablesCore.use(bootstrap);
+DataTable.use(DataTablesCore);
+
 export default {
-  name: 'Certificates_listList',
+  name: 'CertificatesList',
   data() {
     return {
       certificates_list: [],
