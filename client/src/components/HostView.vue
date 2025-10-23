@@ -8,39 +8,7 @@
         <br><br>
         <h1>{{ host }}:{{ port }}</h1>
 
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Scan Date</th>
-              <th scope="col">SSLv2</th>
-              <th scope="col">SSLv3</th>
-              <th scope="col">TLS 1.0</th>
-              <th scope="col">TLS 1.1</th>
-              <th scope="col">TLS 1.2</th>
-              <th scope="col">TLS 1.3</th>
-              <th scope="col">Certificate Serial Number</th>
-              <th scope="col">Weak Algorithm</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(scan, index) in scans" :key="index">
-              <td>{{ scan.date }}</td>
-              <td>{{ scan.sslv2 }}</td>
-              <td>{{ scan.sslv3 }}</td>
-              <td>{{ scan.tls1_0 }}</td>
-              <td>{{ scan.tls1_1 }}</td>
-              <td>{{ scan.tls1_2 }}</td>
-              <td>{{ scan.tls1_3 }}</td>
-              <td>
-                <router-link
-                  :to="{ name: 'certificateview', params: { cert_serial: scan.certificate_serial_number } }">{{
-                    scan.certificate_serial_number }}</router-link>
-
-              </td>
-              <td>{{ scan.weak_algo }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable :data="scans" :columns="columns" class="table table-hover display nowrap" />
       </div>
     </div>
   </div>
@@ -48,13 +16,42 @@
 
 <script>
 import axios from 'axios';
+import * as bootstrap from 'bootstrap';
+import DataTable from 'datatables.net-vue3'
+import DataTablesCore from 'datatables.net-bs5';
+import 'datatables.net-responsive';
+import 'datatables.net-select';
+
+DataTablesCore.use(bootstrap);
+DataTable.use(DataTablesCore);
+
 export default {
   name: 'HostView',
+  components: { DataTable },
   data() {
     return {
       host: this.$route.params.host,
       port: this.$route.params.port,
       scans: [],
+      columns: [
+        { title: 'Scan Date', data: 'date' },
+        { title: 'SSLv2', data: 'sslv2' },
+        { title: 'SSLv3', data: 'sslv3' },
+        { title: 'TLS 1.0', data: 'tls1_0' },
+        { title: 'TLS 1.1', data: 'tls1_1' },
+        { title: 'TLS 1.2', data: 'tls1_2' },
+        { title: 'TLS 1.3', data: 'tls1_3' },
+        {
+          title: 'Certificate Serial Number', data: 'certificate_serial_number',
+          render: function (data, type, row, meta) {
+            if (type === 'display') {
+              data = '<a class="btn btn-primary" href="/certificate/' + data + '">' + data + '</a>';
+            }
+            return data;
+          }
+        },
+        { title: 'Weak Algorithm', data: 'weak_algo' },
+      ],
     };
   },
   methods: {

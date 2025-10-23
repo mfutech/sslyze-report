@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "datatables.net-responsive": "^3.0.7",
+    "datatables.net-select": "^3.1.3"
+  }
+}

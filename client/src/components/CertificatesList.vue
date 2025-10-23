@@ -1,54 +1,44 @@
-<template>
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-12">
-        <h1>Certificates_list</h1>
-        <hr><br><br>
-        <button type="button" class="btn btn-success btn-sm">Add Book</button>
-        <a href="/Ping" type="button" class="btn btn-primary btn-sm">Ping</a>
-        <br><br>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">date</th>
-              <th scope="col">serial_number</th>
-              <th scope="col">subject</th>
-              <th scope="col">public_key_type</th>
-              <th scope="col">not_after</th>
-              <th scope="col">weak_algo</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(cert, i) in certificates_list" :key="cert.serial_number || 'cert-' + i">
-              <td>{{ cert.date }}</td>
-
-              <td>{{ cert.serial_number }}</td>
-              <td>{{ cert.subject }}</td>
-              <td>{{ cert.public_key_type }}</td>
-              <td>{{ cert.not_after }}</td>
-              <td>{{ cert.weak_algo }}</td>
-              <td>
-                <div class="btn-group" role="group">
-                  <router-link class="btn btn-primary"
-                    :to="{ name: 'certificateview', params: { cert_serial: cert.serial_number } }">View</router-link>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script>
 import axios from 'axios';
+import * as bootstrap from 'bootstrap';
+import DataTable from 'datatables.net-vue3'
+import DataTablesCore from 'datatables.net-bs5';
+import 'datatables.net-responsive';
+import 'datatables.net-select';
+
+
+DataTablesCore.use(bootstrap);
+DataTable.use(DataTablesCore);
+
+console.log('DataTablesCore:', DataTablesCore);
+
 export default {
-  name: 'Certificates_listList',
+  name: 'CertificatesList',
+  components: {
+    DataTable,
+  },
   data() {
     return {
       certificates_list: [],
+      options: {
+        responsive: true,
+        select: true,
+      },
+      columns: [
+        { title: 'Date', data: 'date' },
+        { title: 'Not After', data: 'not_after' },
+        { title: 'Public Key Type', data: 'public_key_type' },
+        {
+          title: 'Serial Number', data: 'serial_number', "render": function (data, type, row, meta) {
+            if (type === 'display') {
+              data = '<a class="btn btn-primary" href="/certificate/' + data + '">' + data + '</a>';
+            }
+            return data;
+          }
+        },
+        { title: 'Subject', data: 'subject' },
+        { title: 'Weak Algorithm', data: 'weak_algo' },
+      ],
       others: [{ name: 'a' }, { name: 'b' }, { name: 'c' }],
     };
   },
@@ -80,3 +70,56 @@ export default {
   },
 };
 </script>
+
+
+<template>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <h1>Certificates List</h1>
+        <hr><br><br>
+        <button type="button" class="btn btn-success btn-sm">Add Book</button>
+        <a href="/Ping" type="button" class="btn btn-primary btn-sm">Ping</a>
+        <br><br>
+
+        <DataTable :columns="columns" :options="options" ajax="http://localhost:8080/api/certificates"
+          :data="certificates_list" class="table table-hover display nowrap" />
+        <hr>
+        <DataTable class="display">
+          <thead>
+            <tr>
+              <th>First</th>
+              <th>Second</th>
+            </tr>
+          </thead>
+        </DataTable>
+        <hr>
+        <DataTable ajax="/api/certificates" class="display">
+        </DataTable>
+        <hr>
+        data table with data prop
+        <p>Data table with data prop</p>
+        <DataTable :options="options" :data="others" class="display nowrap" />
+
+        <DataTable :options="options">
+          <tr>
+            <th>Date</th>
+            <th>Not After</th>
+            <th>Public Key Type</th>
+            <th>Serial Number</th>
+            <th>Subject</th>
+            <th>Weak Algorithm</th>
+          </tr>
+          <tr>
+            <td>2024-01-01</td>
+            <td>2025-01-01</td>
+            <td>RSA</td>
+            <td>123456789</td>
+            <td>CN=example.com</td>
+            <td>No</td>
+          </tr>
+        </DataTable>
+      </div>
+    </div>
+  </div>
+</template>
