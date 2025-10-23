@@ -6,10 +6,6 @@ import DataTablesCore from 'datatables.net-bs5';
 import 'datatables.net-responsive';
 import 'datatables.net-select';
 
-// // Include DataTables Bootstrap CSS and extension styles so the table is styled and behaves as expected
-// import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
-// import 'datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css';
-// import 'datatables.net-select-bs5/css/select.bootstrap5.min.css';
 
 DataTablesCore.use(bootstrap);
 DataTable.use(DataTablesCore);
@@ -80,7 +76,7 @@ export default {
   <div class="container">
     <div class="row">
       <div class="col-sm-12">
-        <h1>Certificates_list</h1>
+        <h1>Certificates List</h1>
         <hr><br><br>
         <button type="button" class="btn btn-success btn-sm">Add Book</button>
         <a href="/Ping" type="button" class="btn btn-primary btn-sm">Ping</a>

@@ -35,38 +35,7 @@
 
         <h2>hosts</h2>
 
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Host</th>
-              <th scope="col">SSLv2</th>
-              <th scope="col">SSLv3</th>
-              <th scope="col">TLS 1.0</th>
-              <th scope="col">TLS 1.1</th>
-              <th scope="col">TLS 1.2</th>
-              <th scope="col">TLS 1.3</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(host, index) in hosts" :key="index">
-              <td>{{ host.host }}:{{ host.port }}</td>
-              <td>{{ host.sslv2 }}</td>
-              <td>{{ host.sslv3 }}</td>
-              <td>{{ host.tls1_0 }}</td>
-              <td>{{ host.tls1_1 }}</td>
-              <td>{{ host.tls1_2 }}</td>
-              <td>{{ host.tls1_3 }}</td>
-              <td>{{ host.weak_algo }}</td>
-              <td>
-                <div class="btn-group" role="group">
-                  <router-link class="btn btn-primary"
-                    :to="{ name: 'hostview', params: { host: host.host, port: host.port } }">View</router-link>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable :data="hosts" :columns="columns" class="table table-hover display nowrap" />
       </div>
     </div>
   </div>
@@ -74,13 +43,42 @@
 
 <script>
 import axios from 'axios';
+import * as bootstrap from 'bootstrap';
+import DataTable from 'datatables.net-vue3'
+import DataTablesCore from 'datatables.net-bs5';
+import 'datatables.net-responsive';
+import 'datatables.net-select';
+
+DataTablesCore.use(bootstrap);
+DataTable.use(DataTablesCore);
+
 export default {
   name: 'CertificateView',
+  components: { DataTable },
   data() {
     return {
       cert_serial: this.$route.params.cert_serial,
       certificate: {},
-      hosts: []
+      hosts: [],
+      columns: [
+        {
+          title: 'Host', data: 'host',
+          render: function (data, type, row, meta) {
+            if (type === 'display') {
+              data = '<a href="/host/' + data + '/' + row.port + '" class="btn btn-primary">' + data + ':' + row.port + '</a>';
+            }
+            // console.log('Rendering host column:', data, type, row, meta);
+            return data;
+          }
+        },
+        { title: 'SSLv2', data: 'sslv2' },
+        { title: 'SSLv3', data: 'sslv3' },
+        { title: 'TLS 1.0', data: 'tls1_0' },
+        { title: 'TLS 1.1', data: 'tls1_1' },
+        { title: 'TLS 1.2', data: 'tls1_2' },
+        { title: 'TLS 1.3', data: 'tls1_3' },
+        { title: 'Weak Algorithm', data: 'weak_algo' },
+      ],
     };
   },
   methods: {
