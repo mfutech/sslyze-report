@@ -159,7 +159,9 @@ def main() -> None:
 
             host_analyser = HostAnalyser(db_log_err=db_log_err)
             host_info, certs_info = host_analyser.analyze_results(server_scan_result)
-            cert_serial_numbers = [c.serial_number for c in certs_info]
+
+            # list of certificates serial numbers, as string to avoir conversion issues
+            cert_serial_numbers = [f"{c.serial_number}" for c in certs_info]
 
             db.execute(
                 """INSERT INTO hosts (host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, 
@@ -252,6 +254,18 @@ def main() -> None:
                 )
                 db.commit()
 
+            # update last scan recort for this host/port
+            db.execute(
+                """INSERT OR REPLACE INTO last_scan 
+                           (host, port, scan_id) 
+                           VALUES 
+                           ( ?  ,  ?  ,   ?)""",
+                (
+                    server_scan_result.server_location.hostname,
+                    server_scan_result.server_location.port,
+                    SCANID,
+                ),
+            )
     error_log.close()
     db.close()
 
