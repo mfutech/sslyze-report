@@ -11,6 +11,11 @@ const router = createRouter({
       component: () => import('../components/CertificatesList.vue'),
     },
     {
+      path: '/hosts',
+      name: 'hostslist',
+      component: () => import('../components/HostsList.vue'),
+    },
+    {
       path: '/host/:host/:port',
       name: 'hostview',
       component: () => import('../components/HostView.vue')

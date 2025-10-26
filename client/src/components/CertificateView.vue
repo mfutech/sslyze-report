@@ -7,30 +7,32 @@
         <h1>{{ certificate.subject }}</h1>
         <h2>Scan Results</h2>
         <table class="table table-hover">
-          <tr>
-            <th>Scan date</th>
-            <td>{{ certificate.date }}</td>
-          </tr>
-          <tr>
-            <th>Serial Number</th>
-            <td>{{ certificate.serial_number }}</td>
-          </tr>
-          <tr>
-            <th>Subject</th>
-            <td>{{ certificate.subject }}</td>
-          </tr>
-          <tr>
-            <th>Public Key Type</th>
-            <td>{{ certificate.public_key_type }}</td>
-          </tr>
-          <tr>
-            <th>Not After</th>
-            <td>{{ certificate.not_after }}</td>
-          </tr>
-          <tr>
-            <th>Weak Algorithm</th>
-            <td>{{ certificate.weak_algo }}</td>
-          </tr>
+          <tbody>
+            <tr>
+              <th>Scan date</th>
+              <td>{{ certificate.date }}</td>
+            </tr>
+            <tr>
+              <th>Serial Number</th>
+              <td>{{ certificate.serial_number }}</td>
+            </tr>
+            <tr>
+              <th>Subject</th>
+              <td>{{ certificate.subject }}</td>
+            </tr>
+            <tr>
+              <th>Public Key Type</th>
+              <td>{{ certificate.public_key_type }}</td>
+            </tr>
+            <tr>
+              <th>Not After</th>
+              <td>{{ certificate.not_after }}</td>
+            </tr>
+            <tr>
+              <th>Weak Algorithm</th>
+              <td>{{ certificate.weak_algo }}</td>
+            </tr>
+          </tbody>
         </table>
 
         <h2>hosts</h2>
