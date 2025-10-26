@@ -107,4 +107,4 @@ class TlsAnalyser:
             cypher_result = []
             for accepted_cipher_suite in scan_result.result.accepted_cipher_suites:
                 cypher_result.append(accepted_cipher_suite.cipher_suite.name)
-            return (True, cypher_result)
+            return (scan_result.result.is_tls_version_supported, cypher_result)
