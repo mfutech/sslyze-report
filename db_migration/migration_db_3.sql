@@ -25,6 +25,8 @@ CREATE TABLE hosts (
 
 );
 
+ALTER TABLE certificates RENAME TO certificates_v1;
+
 CREATE TABLE certificates (
     date timestamp default current_timestamp,
     serial_number text,
