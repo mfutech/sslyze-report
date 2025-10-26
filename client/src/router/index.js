@@ -6,12 +6,13 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
+      path: '/certificates',
       name: 'home',
       component: () => import('../components/CertificatesList.vue'),
     },
     {
       path: '/hosts',
+      alias: '/',
       name: 'hostslist',
       component: () => import('../components/HostsList.vue'),
     },
