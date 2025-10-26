@@ -5,6 +5,7 @@ import configparser
 from email.mime import message
 import sqlite3
 import argparse
+import json
 
 CONFIGFILE = "config.ini"
 DEFAULT_DB = "data/sslyze_report.db"
@@ -69,8 +70,8 @@ def view_host(host, port):
     cursor = db.cursor()
 
     cursor.execute(
-        """SELECT date, host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, scan_id, certificate_serial_number, weak_algo 
-                   FROM hosts
+        """ SELECT date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern
+            FROM hosts h
                    WHERE host = ? AND port = ?
                    ORDER BY date DESC
                    """,
@@ -80,19 +81,57 @@ def view_host(host, port):
     scans = []
     for row in rows:
         scan = {
-            "date": row["date"],
-            "sslv2": row["sslv2"],
-            "sslv3": row["sslv3"],
-            "tls1_0": row["tls1_0"],
-            "tls1_1": row["tls1_1"],
-            "tls1_2": row["tls1_2"],
-            "tls1_3": row["tls1_3"],
-            "scan_id": row["scan_id"],
-            "certificate_serial_number": row["certificate_serial_number"],
-            "weak_algo": row["weak_algo"],
+            "date": row["last_scan"],
+            "host": row["host"],
+            "port": row["port"],
+            "sslv2": json.loads(row["sslv2"]),
+            "sslv3": json.loads(row["sslv3"]),
+            "tls1_0": json.loads(row["tls1_0"]),
+            "tls1_1": json.loads(row["tls1_1"]),
+            "tls1_2": json.loads(row["tls1_2"]),
+            "tls1_3": json.loads(row["tls1_3"]),
+            "moz_old": json.loads(row["mozilla_old"]),
+            "moz_intermediate": json.loads(row["mozilla_intermediate"]),
+            "moz_modern": json.loads(row["mozilla_modern"]),
+            "certificate_serial_number": json.loads(row["certificate_serial_number"]),
         }
         scans.append(scan)
     return jsonify({"status": "success", "host": host, "port": port, "scans": scans})
+
+
+@app.route("/api/hosts", methods=["GET"])
+def list_hosts():
+    db = sqlite3.connect(db_filename)
+    db.row_factory = sqlite3.Row
+
+    cursor = db.cursor()
+    cursor.execute(
+        """ SELECT date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern
+            FROM hosts h
+            INNER JOIN  last_scan s
+            ON  h.scan_id = s.scan_id AND h.host = s.host AND h.port = s.port
+        """
+    )
+    rows = cursor.fetchall()
+    hosts = []
+    for row in rows:
+        host = {
+            "last_scan": row["last_scan"],
+            "host": row["host"],
+            "port": row["port"],
+            "sslv2": json.loads(row["sslv2"]),
+            "sslv3": json.loads(row["sslv3"]),
+            "tls1_0": json.loads(row["tls1_0"]),
+            "tls1_1": json.loads(row["tls1_1"]),
+            "tls1_2": json.loads(row["tls1_2"]),
+            "tls1_3": json.loads(row["tls1_3"]),
+            "moz_old": json.loads(row["mozilla_old"]),
+            "moz_intermediate": json.loads(row["mozilla_intermediate"]),
+            "moz_modern": json.loads(row["mozilla_modern"]),
+            "certificate_serial_number": json.loads(row["certificate_serial_number"]),
+        }
+        hosts.append(host)
+    return jsonify({"status": "success", "hosts": hosts})
 
 
 @app.route("/api/certificate/<cert_id>", methods=["GET"])

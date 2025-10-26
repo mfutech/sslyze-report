@@ -78,47 +78,12 @@ export default {
       <div class="col-sm-12">
         <h1>Certificates List</h1>
         <hr><br><br>
-        <button type="button" class="btn btn-success btn-sm">Add Book</button>
-        <a href="/Ping" type="button" class="btn btn-primary btn-sm">Ping</a>
+        <a href="/" type="button" class="btn btn-primary btn-sm">Home</a>
         <br><br>
 
-        <DataTable :columns="columns" :options="options" ajax="http://localhost:8080/api/certificates"
-          :data="certificates_list" class="table table-hover display nowrap" />
-        <hr>
-        <DataTable class="display">
-          <thead>
-            <tr>
-              <th>First</th>
-              <th>Second</th>
-            </tr>
-          </thead>
-        </DataTable>
-        <hr>
-        <DataTable ajax="/api/certificates" class="display">
-        </DataTable>
-        <hr>
-        data table with data prop
-        <p>Data table with data prop</p>
-        <DataTable :options="options" :data="others" class="display nowrap" />
+        <DataTable :columns="columns" :options="options" :data="certificates_list"
+          class="table table-hover display nowrap" />
 
-        <DataTable :options="options">
-          <tr>
-            <th>Date</th>
-            <th>Not After</th>
-            <th>Public Key Type</th>
-            <th>Serial Number</th>
-            <th>Subject</th>
-            <th>Weak Algorithm</th>
-          </tr>
-          <tr>
-            <td>2024-01-01</td>
-            <td>2025-01-01</td>
-            <td>RSA</td>
-            <td>123456789</td>
-            <td>CN=example.com</td>
-            <td>No</td>
-          </tr>
-        </DataTable>
       </div>
     </div>
   </div>

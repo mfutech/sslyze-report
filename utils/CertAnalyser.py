@@ -18,21 +18,24 @@ from pprint import pprint as pp
 
 class CertResult:
     def __init__(self, cert_deployment=None):
-        self.cert_subject = None
-        self.cert_issuer = None
-        self.cert_serial_number = None
-        self.cert_public_key_type = None
+        self.subject = None
+        self.issuer = None
+        self.issuer_serial = None
+        self.serial_number = None
+        self.public_key_type = None
         self.not_valid_after = None
+        self.leaf_cert = None
         if cert_deployment is not None:
             self.analyze_results(cert_deployment)
 
     def analyze_results(self, cert_deployment):
-        leaf_cert = cert_deployment.received_certificate_chain[0]
-        self.subject = leaf_cert.subject.rfc4514_string()
-        self.issuer = leaf_cert.issuer.rfc4514_string()
-        self.serial_number = f"{leaf_cert.serial_number}"
-        self.public_key_type = leaf_cert.public_key().__class__.__name__
-        self.not_valid_after = leaf_cert.not_valid_after_utc
+        self.leaf_cert = cert_deployment.received_certificate_chain[0]
+        self.issuer_serial = self.leaf_cert.serial_number
+        self.subject = self.leaf_cert.subject.rfc4514_string()
+        self.issuer = self.leaf_cert.issuer.rfc4514_string()
+        self.serial_number = self.leaf_cert.serial_number
+        self.public_key_type = self.leaf_cert.public_key().__class__.__name__
+        self.not_valid_after = self.leaf_cert.not_valid_after_utc
 
 
 class CertAnalyser:
