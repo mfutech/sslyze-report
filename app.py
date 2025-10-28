@@ -93,7 +93,9 @@ def view_host(host, port):
             "moz_old": json.loads(row["mozilla_old"]),
             "moz_intermediate": json.loads(row["mozilla_intermediate"]),
             "moz_modern": json.loads(row["mozilla_modern"]),
-            "certificate_serial_number": json.loads(row["certificate_serial_number"]),
+            "certificate_serial_number": [
+                f"{c}" for c in json.loads(row["certificate_serial_number"])
+            ],
         }
         scans.append(scan)
     return jsonify({"status": "success", "host": host, "port": port, "scans": scans})
@@ -116,7 +118,7 @@ def list_hosts():
     hosts = []
     for row in rows:
         host = {
-            "last_scan": row["last_scan"],
+            "date": row["last_scan"],
             "host": row["host"],
             "port": row["port"],
             "sslv2": json.loads(row["sslv2"]),
@@ -141,10 +143,9 @@ def view_certificate(cert_id):
 
     cursor = db.cursor()
     cursor.execute(
-        """SELECT max(date) as last_scan, serial_number, subject, public_key_type, not_after, weak_algo  
-                   FROM certificates
+        """SELECT c.date as last_scan, serial_number, subject, public_key_type, not_after, weak_algo  
+                   FROM certificates c INNER JOIN last_scan s ON c.scan_id = s.scan_id
                    WHERE serial_number = ?
-                   GROUP BY serial_number, subject, public_key_type, not_after, weak_algo 
                    """,
         (cert_id,),
     )
@@ -159,17 +160,17 @@ def view_certificate(cert_id):
     }
     cursor.execute(
         """SELECT h.date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern
-                   FROM hosts h INNER JOIN last_scan s ON h.scan_id = s.scan_id AND h.host = s.host AND h.port = s.port
-                   WHERE certificate_serial_number = ?
+                   FROM hosts h 
+                   WHERE certificate_serial_number like ?
                    ORDER BY h.date ASC
                    """,
-        (cert_id,),
+        (f'%"{cert_id}"%',),
     )
     rows = cursor.fetchall()
     hosts = []
     for row in rows:
         host = {
-            "last_scan": row["last_scan"],
+            "date": row["last_scan"],
             "host": row["host"],
             "port": row["port"],
             "sslv2": json.loads(row["sslv2"]),
@@ -184,7 +185,14 @@ def view_certificate(cert_id):
             "certificate_serial_number": json.loads(row["certificate_serial_number"]),
         }
         hosts.append(host)
-    return jsonify({"status": "success", "certificate": certificate, "hosts": hosts})
+    return jsonify(
+        {
+            "status": "success",
+            "certificate": certificate,
+            "hosts": hosts,
+            "other_info": f'"{cert_id}"',
+        }
+    )
 
 
 # sanity check route
