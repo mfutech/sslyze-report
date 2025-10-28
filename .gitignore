@@ -160,6 +160,7 @@ config.ini
 
 # data files
 data/*
+!data
 
 # Logs
 logs
