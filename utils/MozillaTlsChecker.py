@@ -42,13 +42,12 @@ class MozillaTlsResult:
             self.issues = e.issues
         except ServerScanResultIncomplete as e:
             self.success = False
-            self.feedback = f"Scan result incomplete"
-            self.issues = e.issues
+            self.feedback = str(e)
+            self.issues = { "scan_issue" : str(e)}
 
 
 class MozillaTlsChecker:
-    def __init__(self, db_log_err=None):
-        self.db_log_err = db_log_err
+    def __init__(self):
         self.modern = MozillaTlsResult()
         self.intermediate = MozillaTlsResult()
         self.old = MozillaTlsResult()

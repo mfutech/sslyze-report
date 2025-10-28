@@ -40,15 +40,15 @@ class HostResult:
         self.hostname = scan_result.server_location.hostname
         self.port = scan_result.server_location.port
         # Analyze TLS results
-        tls_analyser = TlsAnalyser(None)
+        tls_analyser = TlsAnalyser()
         tls_analyser.analyze_results(scan_result)
         self.tls = tls_analyser.tls_result
         # Analyze Certificate results
-        cert_analyser = CertAnalyser(None)
+        cert_analyser = CertAnalyser()
         cert_analyser.analyze_results(scan_result)
         self.cert_deployment = cert_analyser.cert_results
         # Analyze Mozilla TLS compliance
-        moz_tls_checker = MozillaTlsChecker(None)
+        moz_tls_checker = MozillaTlsChecker()
         moz_tls_checker.analyze_results(scan_result)
         self.moz_tls_modern = moz_tls_checker.modern
         self.moz_tls_intermediate = moz_tls_checker.intermediate
@@ -59,9 +59,7 @@ class HostAnalyser:
     def __init__(
         self,
         scan_result=None,
-        db_log_err=None,
     ):
-        self.db_log_err = db_log_err
         self.host = HostResult()
         self.certs = []
         if scan_result is not None:
@@ -74,12 +72,6 @@ class HostAnalyser:
         # Process the result of the certificate info scan command
         certinfo_attempt = scan_result.scan_result.certificate_info
         if certinfo_attempt.status == ScanCommandAttemptStatusEnum.ERROR:
-            # An error happened when this scan command was run
-            self.db_log_err.log(
-                "Error: Certificate info scan command failed",
-                scan_result.server_location.hostname,
-                scan_result.server_location.port,
-            )
             self.certs.append(CertResult())
 
         elif certinfo_attempt.status == ScanCommandAttemptStatusEnum.COMPLETED:

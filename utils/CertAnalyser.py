@@ -42,21 +42,13 @@ class CertAnalyser:
 
     def __init__(
         self,
-        db_log_err,
     ):
-        self.db_log_err = db_log_err
         self.cert_results = []
 
     def analyze_results(self, server_scan_result):
         # Process the result of the certificate info scan command
         certinfo_attempt = server_scan_result.scan_result.certificate_info
         if certinfo_attempt.status == ScanCommandAttemptStatusEnum.ERROR:
-            # An error happened when this scan command was run
-            self.db_log_err.log(
-                "Error: Certificate info scan command failed",
-                server_scan_result.server_location.hostname,
-                server_scan_result.server_location.port,
-            )
             self.cert_results.append(CertResult())
 
         elif certinfo_attempt.status == ScanCommandAttemptStatusEnum.COMPLETED:
