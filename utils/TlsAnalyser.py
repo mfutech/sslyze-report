@@ -55,9 +55,10 @@ class TlsResult:
 
 
 class TlsAnalyser:
-    def __init__(self, db_log_err=None):
-        self.db_log_err = db_log_err
+    def __init__(self, server_scan_result = None):
         self.tls_result = None
+        if (server_scan_result is not None):
+            self.analyze_results(server_scan_result)
 
     def analyze_results(self, server_scan_result):
         self.server_scan_result = server_scan_result

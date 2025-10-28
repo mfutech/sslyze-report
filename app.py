@@ -158,10 +158,10 @@ def view_certificate(cert_id):
         "weak_algo": row["weak_algo"],
     }
     cursor.execute(
-        """SELECT max(date) as last_scan, host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, weak_algo
-                   FROM hosts
+        """SELECT h.date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern
+                   FROM hosts h INNER JOIN last_scan s ON h.scan_id = s.scan_id AND h.host = s.host AND h.port = s.port
                    WHERE certificate_serial_number = ?
-                   GROUP by host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, weak_algo
+                   ORDER BY h.date ASC
                    """,
         (cert_id,),
     )
@@ -169,16 +169,19 @@ def view_certificate(cert_id):
     hosts = []
     for row in rows:
         host = {
+            "last_scan": row["last_scan"],
             "host": row["host"],
             "port": row["port"],
-            "sslv2": row["sslv2"],
-            "sslv3": row["sslv3"],
-            "tls1_0": row["tls1_0"],
-            "tls1_1": row["tls1_1"],
-            "tls1_2": row["tls1_2"],
-            "tls1_3": row["tls1_3"],
-            "certificate_serial_number": row["certificate_serial_number"],
-            "weak_algo": row["weak_algo"],
+            "sslv2": json.loads(row["sslv2"]),
+            "sslv3": json.loads(row["sslv3"]),
+            "tls1_0": json.loads(row["tls1_0"]),
+            "tls1_1": json.loads(row["tls1_1"]),
+            "tls1_2": json.loads(row["tls1_2"]),
+            "tls1_3": json.loads(row["tls1_3"]),
+            "moz_old": json.loads(row["mozilla_old"]),
+            "moz_intermediate": json.loads(row["mozilla_intermediate"]),
+            "moz_modern": json.loads(row["mozilla_modern"]),
+            "certificate_serial_number": json.loads(row["certificate_serial_number"]),
         }
         hosts.append(host)
     return jsonify({"status": "success", "certificate": certificate, "hosts": hosts})

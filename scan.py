@@ -132,140 +132,153 @@ def main() -> None:
             # Since we were able to run the scan, scan_result is populated
             assert server_scan_result.scan_result
 
-            # Analyze TLS results
-            tls_scanner = TlsAnalyser(db_log_err)
-            tls_result = tls_scanner.analyze_results(server_scan_result)
 
-            # create a json version of the result
-            json_result = result_to_json(
-                [server_scan_result], scan_started, scan_completed
-            )
+            try: # section protect against exception until error handling is better
+                # Analyze TLS results
+                tls_scanner = TlsAnalyser()
+                tls_result = tls_scanner.analyze_results(server_scan_result)
 
-            ## store json result - we keep the complete result of the scan for possible reprocessing or diagnostics
-            ## TODO - might need a cleanup process, to evaluate,
-            db.execute(
-                "INSERT INTO scan_details (host, port, scan_started, scan_completed , scan_result_json, scan_id) "
-                + "VALUES                   (?,    ?,    ?,            ?,               ?,                ?      )",
-                (
-                    server_scan_result.server_location.hostname,
-                    server_scan_result.server_location.port,
-                    scan_started,
-                    scan_completed,
-                    json_result,
-                    SCANID,
-                ),
-            )
-            db.commit()
+                # create a json version of the result
+                json_result = result_to_json(
+                    [server_scan_result], scan_started, scan_completed
+                )
 
-            host_analyser = HostAnalyser(db_log_err=db_log_err)
-            host_info, certs_info = host_analyser.analyze_results(server_scan_result)
-
-            # list of certificates serial numbers, as string to avoir conversion issues
-            cert_serial_numbers = [f"{c.serial_number}" for c in certs_info]
-
-            db.execute(
-                """INSERT INTO hosts (host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, 
-                                             certificate_serial_number, scan_id, mozilla_old, 
-                                             mozilla_intermediate, mozilla_modern) VALUES           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    host_info.hostname,
-                    host_info.port,
-                    json.dumps(
-                        {
-                            "enabled": host_info.tls.ssl2_enabled,
-                            "accepted_ciphers": host_info.tls.ssl2_accepted_ciphers_str(),
-                        }
-                    ),
-                    json.dumps(
-                        {
-                            "enabled": host_info.tls.ssl3_enabled,
-                            "accepted_ciphers": host_info.tls.ssl3_accepted_ciphers_str(),
-                        }
-                    ),
-                    json.dumps(
-                        {
-                            "enabled": host_info.tls.tls1_0_enabled,
-                            "accepted_ciphers": host_info.tls.tls1_0_accepted_ciphers_str(),
-                        }
-                    ),
-                    json.dumps(
-                        {
-                            "enabled": host_info.tls.tls1_1_enabled,
-                            "accepted_ciphers": host_info.tls.tls1_1_accepted_ciphers_str(),
-                        }
-                    ),
-                    json.dumps(
-                        {
-                            "enabled": host_info.tls.tls1_2_enabled,
-                            "accepted_ciphers": host_info.tls.tls1_2_accepted_ciphers_str(),
-                        }
-                    ),
-                    json.dumps(
-                        {
-                            "enabled": host_info.tls.tls1_3_enabled,
-                            "accepted_ciphers": host_info.tls.tls1_3_accepted_ciphers_str(),
-                        }
-                    ),
-                    json.dumps(cert_serial_numbers),
-                    SCANID,
-                    json.dumps(
-                        {
-                            "compliant": host_info.moz_tls_old.success,
-                            "feedback": host_info.moz_tls_old.feedback,
-                            "issues": host_info.moz_tls_old.issues,
-                        }
-                    ),
-                    json.dumps(
-                        {
-                            "compliant": host_info.moz_tls_intermediate.success,
-                            "feedback": host_info.moz_tls_intermediate.feedback,
-                            "issues": host_info.moz_tls_intermediate.issues,
-                        }
-                    ),
-                    json.dumps(
-                        {
-                            "compliant": host_info.moz_tls_modern.success,
-                            "feedback": host_info.moz_tls_modern.feedback,
-                            "issues": host_info.moz_tls_modern.issues,
-                        }
-                    ),
-                ),
-            )
-            db.commit()
-
-            # Process the result of the certificate info scan command
-            cert_scanner = CertAnalyser(db_log_err)
-            for cert_result in cert_scanner.analyze_results(server_scan_result):
-
+                ## store json result - we keep the complete result of the scan for possible reprocessing or diagnostics
+                ## TODO - might need a cleanup process, to evaluate,
                 db.execute(
-                    """INSERT INTO certificates 
-                              (serial_number, subject, public_key_type, not_after, parent_certificate_serial_number, issuer, scan_id) 
-                              VALUES 
-                              (?            , ?      , ?              , ?        , ?                               , ?     , ?)""",
+                    "INSERT INTO scan_details (host, port, scan_started, scan_completed , scan_result_json, scan_id) "
+                    + "VALUES                   (?,    ?,    ?,            ?,               ?,                ?      )",
                     (
-                        f"{cert_result.serial_number}",
-                        cert_result.subject,
-                        cert_result.public_key_type,
-                        cert_result.not_valid_after,
-                        f"{cert_result.issuer_serial}",
-                        cert_result.issuer,
+                        server_scan_result.server_location.hostname,
+                        server_scan_result.server_location.port,
+                        scan_started,
+                        scan_completed,
+                        json_result,
                         SCANID,
                     ),
                 )
                 db.commit()
 
-            # update last scan recort for this host/port
-            db.execute(
-                """INSERT OR REPLACE INTO last_scan 
-                           (host, port, scan_id) 
-                           VALUES 
-                           ( ?  ,  ?  ,   ?)""",
-                (
-                    server_scan_result.server_location.hostname,
-                    server_scan_result.server_location.port,
-                    SCANID,
-                ),
-            )
+                host_analyser = HostAnalyser()
+                host_info, certs_info = host_analyser.analyze_results(server_scan_result)
+
+                # list of certificates serial numbers, as string to avoir conversion issues
+                cert_serial_numbers = [f"{c.serial_number}" for c in certs_info]
+
+                db.execute(
+                    """INSERT INTO hosts (host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, 
+                                                certificate_serial_number, scan_id, mozilla_old, 
+                                                mozilla_intermediate, mozilla_modern) VALUES           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        host_info.hostname,
+                        host_info.port,
+                        json.dumps(
+                            {
+                                "enabled": host_info.tls.ssl2_enabled,
+                                "accepted_ciphers": host_info.tls.ssl2_accepted_ciphers_str(),
+                            }
+                        ),
+                        json.dumps(
+                            {
+                                "enabled": host_info.tls.ssl3_enabled,
+                                "accepted_ciphers": host_info.tls.ssl3_accepted_ciphers_str(),
+                            }
+                        ),
+                        json.dumps(
+                            {
+                                "enabled": host_info.tls.tls1_0_enabled,
+                                "accepted_ciphers": host_info.tls.tls1_0_accepted_ciphers_str(),
+                            }
+                        ),
+                        json.dumps(
+                            {
+                                "enabled": host_info.tls.tls1_1_enabled,
+                                "accepted_ciphers": host_info.tls.tls1_1_accepted_ciphers_str(),
+                            }
+                        ),
+                        json.dumps(
+                            {
+                                "enabled": host_info.tls.tls1_2_enabled,
+                                "accepted_ciphers": host_info.tls.tls1_2_accepted_ciphers_str(),
+                            }
+                        ),
+                        json.dumps(
+                            {
+                                "enabled": host_info.tls.tls1_3_enabled,
+                                "accepted_ciphers": host_info.tls.tls1_3_accepted_ciphers_str(),
+                            }
+                        ),
+                        json.dumps(cert_serial_numbers),
+                        SCANID,
+                        json.dumps(
+                            {
+                                "compliant": host_info.moz_tls_old.success,
+                                "feedback": host_info.moz_tls_old.feedback,
+                                "issues": host_info.moz_tls_old.issues,
+                            }
+                        ),
+                        json.dumps(
+                            {
+                                "compliant": host_info.moz_tls_intermediate.success,
+                                "feedback": host_info.moz_tls_intermediate.feedback,
+                                "issues": host_info.moz_tls_intermediate.issues,
+                            }
+                        ),
+                        json.dumps(
+                            {
+                                "compliant": host_info.moz_tls_modern.success,
+                                "feedback": host_info.moz_tls_modern.feedback,
+                                "issues": host_info.moz_tls_modern.issues,
+                            }
+                        ),
+                    ),
+                )
+                db.commit()
+
+                # Process the result of the certificate info scan command
+                cert_scanner = CertAnalyser()
+                for cert_result in cert_scanner.analyze_results(server_scan_result):
+
+                    db.execute(
+                        """INSERT INTO certificates 
+                                (serial_number, subject, public_key_type, not_after, parent_certificate_serial_number, issuer, scan_id) 
+                                VALUES 
+                                (?            , ?      , ?              , ?        , ?                               , ?     , ?)""",
+                        (
+                            f"{cert_result.serial_number}",
+                            cert_result.subject,
+                            cert_result.public_key_type,
+                            cert_result.not_valid_after,
+                            f"{cert_result.issuer_serial}",
+                            cert_result.issuer,
+                            SCANID,
+                        ),
+                    )
+                    db.commit()
+
+                # update last scan recort for this host/port
+                db.execute(
+                    """INSERT OR REPLACE INTO last_scan 
+                            (host, port, scan_id) 
+                            VALUES 
+                            ( ?  ,  ?  ,   ?)""",
+                    (
+                        server_scan_result.server_location.hostname,
+                        server_scan_result.server_location.port,
+                        SCANID,
+                    ),
+                )
+            except KeyboardInterrupt as e:
+                error_log.close()
+                db.close()
+                exit(-1)
+
+            except Exception as e:
+                host = server_scan_result.server_location.hostname
+                port = server_scan_result.server_location.port
+                print(f"scan {host}:{port} exception:  {str(e)}")
+                db_log_err.log (str(e), host = host, port = port)
+                continue
     error_log.close()
     db.close()
 

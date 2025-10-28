@@ -23,6 +23,8 @@ export default {
       options: {
         responsive: true,
         select: true,
+        length: 500,
+        lengthMenu: [10, 25, 50, { label: 'All', value: -1 }]
       },
       columns: [
         { title: 'Date', data: 'last_scan' },
@@ -47,54 +49,42 @@ export default {
         {
           title: 'SSLv2', data: 'sslv2', render: function (data, type, row, meta) {
             let result = data
-            if (type === 'display') {
-              result = '<span>' + (data.enabled ? 'Yes' : 'No') + '</span>';
-            }
+              result = '<span>' + (data.enabled ? 'SSLv2' : '-') + '</span>';
             return result;
           }
         },
         {
           title: 'SSLv3', data: 'sslv3', render: function (data, type, row, meta) {
             let result = data
-            if (type === 'display') {
-              result = '<span>' + (data.enabled ? 'Yes' : 'No') + '</span>';
-            }
+              result = '<span>' + (data.enabled ? 'SSLv3' : '-') + '</span>';
             return result;
           }
         },
         {
           title: 'TLS 1.0', data: 'tls1_0', render: function (data, type, row, meta) {
             let result = data
-            if (type === 'display') {
-              result = '<span>' + (data.enabled ? 'Yes' : 'No') + '</span>';
-            }
+              result = '<span>' + (data.enabled ? 'TLS1.0' : '-') + '</span>';
             return result;
           }
         },
         {
           title: 'TLS 1.1', data: 'tls1_1', render: function (data, type, row, meta) {
             let result = data
-            if (type === 'display') {
-              result = '<span>' + (data.enabled ? 'Yes' : 'No') + '</span>';
-            }
+              result = '<span>' + (data.enabled ? 'TLS1.1' : '-') + '</span>';
             return result;
           }
         },
         {
           title: 'TLS 1.2', data: 'tls1_2', render: function (data, type, row, meta) {
             let result = data
-            if (type === 'display') {
-              result = '<span>' + (data.enabled ? 'Yes' : 'No') + '</span>';
-            }
+              result = '<span>' + (data.enabled ? 'TLS1.2' : '-') + '</span>';
             return result;
           }
         },
         {
           title: 'TLS 1.3', data: 'tls1_3', render: function (data, type, row, meta) {
             let result = data
-            if (type === 'display') {
-              result = '<span>' + (data.enabled ? 'Yes' : 'No') + '</span>';
-            }
+              result = '<span>' + (data.enabled ? 'TLS1.3' : '-') + '</span>';
             return result;
           }
         },
