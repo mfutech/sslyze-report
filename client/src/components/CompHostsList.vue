@@ -90,27 +90,30 @@ export default {
         },
         {
           title: 'Old', data: 'moz_old', render: function (data, type, row, meta) {
-            let result = data
+            let result = (data.compliant ? 'Old Compliant' : 'Old Non Compliant');
             if (type === 'display') {
-              result = '<span>' + (data.compliant ? 'Yes' : 'No') + '</span>';
+              let res_class = "border border-2 " + (data.compliant ? 'border-success' : 'border-danger');
+              result = '<button class="' + res_class + '">' + result + '</button>';
             }
             return result;
           }
         },
         {
           title: 'Intermediate', data: 'moz_intermediate', render: function (data, type, row, meta) {
-            let result = data
+            let result = (data.compliant ? 'Intermediate Compliant' : 'Intermediate Non Compliant');
             if (type === 'display') {
-              result = '<span>' + (data.compliant ? 'Yes' : 'No') + '</span>';
+              let res_class = "border border-2 " + (data.compliant ? 'border-success' : 'border-danger');
+              result = '<button class="' + res_class + '">' + result + '</button>';
             }
             return result;
           }
         },
         {
           title: 'Modern', data: 'moz_modern', render: function (data, type, row, meta) {
-            let result = data
+            let result = (data.compliant ? 'Modern Compliant' : 'Modern Non Compliant');
             if (type === 'display') {
-              result = '<span>' + (data.compliant ? 'Yes' : 'No') + '</span>';
+              let res_class = "border border-2 " + (data.compliant ? 'border-success' : 'border-danger');
+              result = '<button class="' + res_class + '">' + result + '</button>';
             }
             return result;
           }
