@@ -28,16 +28,13 @@
               <th>Not After</th>
               <td>{{ certificate.not_after }}</td>
             </tr>
-            <tr>
-              <th>Weak Algorithm</th>
-              <td>{{ certificate.weak_algo }}</td>
-            </tr>
+
           </tbody>
         </table>
 
         <h2>hosts</h2>
 
-        <DataTable :data="hosts" :columns="columns" class="table table-hover display nowrap" />
+        <CompHostsList :hosts="hosts" />
       </div>
     </div>
   </div>
@@ -46,17 +43,14 @@
 <script>
 import axios from 'axios';
 import * as bootstrap from 'bootstrap';
-import DataTable from 'datatables.net-vue3'
-import DataTablesCore from 'datatables.net-bs5';
-import 'datatables.net-responsive';
-import 'datatables.net-select';
 
-DataTablesCore.use(bootstrap);
-DataTable.use(DataTablesCore);
+
+import CompHostsList from './CompHostsList.vue';
+
 
 export default {
   name: 'CertificateView',
-  components: { DataTable },
+  components: { CompHostsList },
   data() {
     return {
       cert_serial: this.$route.params.cert_serial,

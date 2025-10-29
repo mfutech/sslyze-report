@@ -89,7 +89,8 @@
           </tbody>
         </table>
 
-        <DataTable :data="scans" :columns="columns" class="table table-hover display nowrap" />
+        <CompHostsList :hosts="scans" />
+        <!-- <DataTable :data="scans" :columns="columns" class="table table-hover display nowrap" /> -->
       </div>
     </div>
   </div>
@@ -102,13 +103,14 @@ import DataTable from 'datatables.net-vue3'
 import DataTablesCore from 'datatables.net-bs5';
 import 'datatables.net-responsive';
 import 'datatables.net-select';
+import CompHostsList from './CompHostsList.vue';
 
 DataTablesCore.use(bootstrap);
 DataTable.use(DataTablesCore);
 
 export default {
   name: 'HostView',
-  components: { DataTable },
+  components: { DataTable, CompHostsList },
   data() {
     return {
       host: this.$route.params.host,
