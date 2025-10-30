@@ -7,24 +7,24 @@ const router = createRouter({
   routes: [
     {
       path: '/certificates',
-      name: 'home',
-      component: () => import('../components/CertificatesList.vue'),
+      name: 'certificateslist',
+      component: () => import('../views/CertificatesList.vue'),
     },
     {
       path: '/hosts',
       alias: '/',
       name: 'hostslist',
-      component: () => import('../components/HostsList.vue'),
+      component: () => import('../views/HostsList.vue'),
     },
     {
       path: '/host/:host/:port',
       name: 'hostview',
-      component: () => import('../components/HostView.vue')
+      component: () => import('../views/HostView.vue')
     },
     {
       path: '/certificate/:cert_serial',
       name: 'certificateview',
-      component: () => import('../components/CertificateView.vue'),
+      component: () => import('../views/CertificateView.vue'),
     },
     {
       path: '/about',
@@ -37,7 +37,7 @@ const router = createRouter({
     {
       path: '/ping',
       name: 'ping',
-      component: () => import('../components/Ping.vue'),
+      component: () => import('../views/Ping.vue'),
     },
     {
       path: '/datatable',

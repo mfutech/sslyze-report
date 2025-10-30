@@ -2,9 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-12">
-        <h1>Certificate Details</h1>
-        <hr><br><br>
-        <h1>{{ certificate.subject }}</h1>
+        <MenuHeader :title="'Certificate Details : ' + certificate.subject" />
         <h2>Scan Results</h2>
         <table class="table table-hover">
           <tbody>
@@ -34,7 +32,7 @@
 
         <h2>hosts</h2>
 
-        <CompHostsList :hosts="hosts" />
+        <HostsList :hosts="hosts" />
       </div>
     </div>
   </div>
@@ -45,12 +43,12 @@ import axios from 'axios';
 import * as bootstrap from 'bootstrap';
 
 
-import CompHostsList from './CompHostsList.vue';
+import HostsList from '../components/HostsList.vue';
+import MenuHeader from '../components/MenuHeader.vue';
 
 
 export default {
-  name: 'CertificateView',
-  components: { CompHostsList },
+  components: { HostsList, MenuHeader },
   data() {
     return {
       cert_serial: this.$route.params.cert_serial,

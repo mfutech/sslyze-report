@@ -5,6 +5,8 @@ import DataTable from 'datatables.net-vue3'
 import DataTablesCore from 'datatables.net-bs5';
 import 'datatables.net-responsive';
 import 'datatables.net-select';
+import MenuHeader from '../components/MenuHeader.vue';
+
 
 
 DataTablesCore.use(bootstrap);
@@ -13,9 +15,9 @@ DataTable.use(DataTablesCore);
 console.log('DataTablesCore:', DataTablesCore);
 
 export default {
-  name: 'CertificatesList',
   components: {
     DataTable,
+    MenuHeader,
   },
   data() {
     return {
@@ -76,10 +78,7 @@ export default {
   <div class="container">
     <div class="row">
       <div class="col-sm-12">
-        <h1>Certificates List</h1>
-        <hr><br><br>
-        <a href="/" type="button" class="btn btn-primary btn-sm">Home</a>
-        <br><br>
+        <MenuHeader title="Certificate List" />
 
         <DataTable :columns="columns" :options="options" :data="certificates_list"
           class="table table-hover display nowrap" />

@@ -1,15 +1,17 @@
 <template>
   <div>
-    <h1>Ping page</h1>
+    <MenuHeader title="Ping Page" />
     <p>status : <button type="button" class="btn btn-primary">{{ msg }}</button></p>
   </div>
 </template>
 
 <script>
+import MenuHeader from '@/components/MenuHeader.vue';
 import axios from 'axios';
 
 export default {
-  name: 'Ping',
+  name: 'PingPage',
+  components: { MenuHeader },
   data() {
     return {
       msg: '',
