@@ -23,8 +23,8 @@ export default {
       options: {
         responsive: true,
         select: true,
-        length: 500,
-        lengthMenu: [10, 25, 50, { label: 'All', value: -1 }]
+        length: 100,
+        lengthMenu: [10, 25, 50, 100, { label: 'All', value: -1 }]
       },
       columns: [
         { title: 'Date', data: 'date' },
@@ -119,12 +119,11 @@ export default {
           }
         },
         {
-          title: 'Serial Number', data: 'certificate_serial_number', "render": function (data, type, row, meta) {
+          title: 'Fingerprint', data: 'certificate_fingerprint', "render": function (data, type, row, meta) {
             if (type === 'display') {
-              let output = '';
-              data.forEach(function (serial) {
-                let serial_disp = serial.length > 18 ? serial.substr(0, 15) + '...' : serial;
-                output += '<a class="btn btn-primary" href="/certificate/' + serial + '">' + serial_disp + '</a><br>';
+              let output = data.map(function (fingerprint) {
+                let fingerprint_disp = fingerprint.length > 18 ? fingerprint.substr(0, 15) + '...' : fingerprint;
+                return '<a class="btn btn-primary" href="/certificate/' + fingerprint + '">' + fingerprint_disp + '</a><br>';
               });
               data = output;
             }

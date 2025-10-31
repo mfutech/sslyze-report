@@ -9,15 +9,16 @@
             <tr>
               <th>Scan date</th>
               <td>{{ certificate.date }}</td>
+              <th>Subject</th>
+              <td>{{ certificate.subject }}</td>
             </tr>
             <tr>
               <th>Serial Number</th>
               <td>{{ certificate.serial_number }}</td>
+              <th>Fingerprint</th>
+              <td>{{ certificate.fingerprint }}</td>
             </tr>
-            <tr>
-              <th>Subject</th>
-              <td>{{ certificate.subject }}</td>
-            </tr>
+
             <tr>
               <th>Public Key Type</th>
               <td>{{ certificate.public_key_type }}</td>
@@ -25,8 +26,10 @@
             <tr>
               <th>Not After</th>
               <td>{{ certificate.not_after }}</td>
-            </tr>
 
+              <th>Not Before</th>
+              <td>{{ certificate.not_before }}</td>
+            </tr>
           </tbody>
         </table>
 
@@ -53,26 +56,6 @@ export default {
     return {
       cert_serial: this.$route.params.cert_serial,
       certificate: {},
-      hosts: [],
-      columns: [
-        {
-          title: 'Host', data: 'host',
-          render: function (data, type, row, meta) {
-            if (type === 'display') {
-              data = '<a href="/host/' + data + '/' + row.port + '" class="btn btn-primary">' + data + ':' + row.port + '</a>';
-            }
-            // console.log('Rendering host column:', data, type, row, meta);
-            return data;
-          }
-        },
-        { title: 'SSLv2', data: 'sslv2' },
-        { title: 'SSLv3', data: 'sslv3' },
-        { title: 'TLS 1.0', data: 'tls1_0' },
-        { title: 'TLS 1.1', data: 'tls1_1' },
-        { title: 'TLS 1.2', data: 'tls1_2' },
-        { title: 'TLS 1.3', data: 'tls1_3' },
-        { title: 'Weak Algorithm', data: 'weak_algo' },
-      ],
     };
   },
   methods: {

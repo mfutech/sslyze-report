@@ -6,12 +6,14 @@ from sslyze import (
     ScanCommandAttemptStatusEnum,
     ServerScanStatusEnum,
 )
+
 from sslyze.errors import ServerHostnameCouldNotBeResolved
 from sslyze.scanner.scan_command_attempt import ScanCommandAttempt
 from utils.ScanError import ScanError
 
 from pprint import pprint as pp
 
+from cryptography.hazmat.primitives import hashes
 
 # "ssl_2_0_cipher_suites", "ssl_3_0_cipher_suites", "tls_1_0_cipher_suites", "tls_1_1_cipher_suites", "tls_1_2_cipher_suites", "tls_1_3_cipher_suites",
 
@@ -22,8 +24,10 @@ class CertResult:
         self.issuer = None
         self.issuer_serial = None
         self.serial_number = None
+        self.fingerprintSHA256 = None
         self.public_key_type = None
         self.not_valid_after = None
+        self.not_valid_before = None
         self.leaf_cert = None
         if cert_deployment is not None:
             self.analyze_results(cert_deployment)
@@ -36,6 +40,9 @@ class CertResult:
         self.serial_number = self.leaf_cert.serial_number
         self.public_key_type = self.leaf_cert.public_key().__class__.__name__
         self.not_valid_after = self.leaf_cert.not_valid_after_utc
+        self.not_valid_before = self.leaf_cert.not_valid_before_utc
+        self.fingerprintSHA256 = self.leaf_cert.fingerprint(hashes.SHA256()).hex()
+
 
 
 class CertAnalyser:

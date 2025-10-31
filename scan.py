@@ -164,11 +164,14 @@ def main() -> None:
 
                 # list of certificates serial numbers, as string to avoir conversion issues
                 cert_serial_numbers = [f"{c.serial_number}" for c in certs_info]
+                cert_fingerprintSHA256 = [f"{c.fingerprintSHA256}" for c in certs_info]
 
                 db.execute(
-                    """INSERT INTO hosts (host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, 
+                    """ INSERT INTO hosts   (host, port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, 
                                                 certificate_serial_number, scan_id, mozilla_old, 
-                                                mozilla_intermediate, mozilla_modern) VALUES           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                                                mozilla_intermediate, mozilla_modern,
+                                                fingerprintSHA256)
+                        VALUES              (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         host_info.hostname,
                         host_info.port,
@@ -231,6 +234,7 @@ def main() -> None:
                                 "issues": host_info.moz_tls_modern.issues,
                             }
                         ),
+                        json.dumps(cert_fingerprintSHA256)
                     ),
                 )
                 db.commit()
@@ -241,9 +245,11 @@ def main() -> None:
 
                     db.execute(
                         """INSERT INTO certificates 
-                                (serial_number, subject, public_key_type, not_after, parent_certificate_serial_number, issuer, scan_id) 
+                                (serial_number, subject, public_key_type, not_after, parent_certificate_serial_number, issuer, 
+                                scan_id, not_valid_before, fingerprintSHA256) 
                                 VALUES 
-                                (?            , ?      , ?              , ?        , ?                               , ?     , ?)""",
+                                (?            , ?      , ?              , ?        , ?                               , ?     ,
+                                ?      , ?               , ?)""",
                         (
                             f"{cert_result.serial_number}",
                             cert_result.subject,
@@ -252,6 +258,8 @@ def main() -> None:
                             f"{cert_result.issuer_serial}",
                             cert_result.issuer,
                             SCANID,
+                            cert_result.not_valid_before,
+                            cert_result.fingerprintSHA256
                         ),
                     )
                     db.commit()
