@@ -26,22 +26,24 @@ export default {
         responsive: true,
         select: true,
       },
+      order: [[0, 'asc']],
       columns: [
         { title: 'Date', data: 'date' },
         { title: 'Not After', data: 'not_after' },
+        { title: 'Not Before', data: 'not_before' },
         { title: 'Public Key Type', data: 'public_key_type' },
         {
-          title: 'Serial Number', data: 'serial_number', "render": function (data, type, row, meta) {
+          title: 'Fingerprint', data: 'fingerprint', "render": function (data, type, row, meta) {
             if (type === 'display') {
-              data = '<a class="btn btn-primary" href="/certificate/' + data + '">' + data + '</a>';
+              let data_display = data.substring(0, 10) + '...' + data.substring(data.length - 10);
+              data = '<a class="btn btn-primary" href="/certificate/' + data + '">' + data_display + '</a>';
             }
             return data;
           }
         },
         { title: 'Subject', data: 'subject' },
-        { title: 'Weak Algorithm', data: 'weak_algo' },
+        { title: 'Usage', data: 'nb_host' },
       ],
-      others: [{ name: 'a' }, { name: 'b' }, { name: 'c' }],
     };
   },
   methods: {

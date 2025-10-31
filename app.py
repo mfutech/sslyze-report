@@ -32,9 +32,8 @@ app.config.from_object(__name__)
 # enable CORS
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+
 # list certifcates
-
-
 @app.route("/api/certificates", methods=["GET"])
 def list_certificates():
     db = sqlite3.connect(db_filename)
@@ -42,10 +41,17 @@ def list_certificates():
 
     cursor = db.cursor()
     cursor.execute(
-        """SELECT max(date) as last_scan, serial_number, subject, public_key_type, not_after, weak_algo  
-                   FROM certificates
-                   GROUP BY serial_number, subject, public_key_type, not_after, weak_algo 
-                   """
+        """
+SELECT c.date as last_scan, c.serial_number, c.fingerprintSHA256, c.subject, c.public_key_type, c.not_after, count(h.host) as nb_host,
+    c.not_before
+
+from certificates c
+        join hosts h on ( INSTR(h.fingerprintSHA256, c.fingerprintSHA256) > 0 )
+        join last_scan s on (s.scan_id = h.scan_id and s.host = h.host and s.port = h.port)
+
+group by c.date, c.serial_number, c.fingerprintSHA256, c.subject, c.public_key_type, c.not_after
+order by nb_host DESC
+"""
     )
     rows = cursor.fetchall()
     certificates = []
@@ -56,7 +62,9 @@ def list_certificates():
             "subject": row["subject"],
             "public_key_type": row["public_key_type"],
             "not_after": row["not_after"],
-            "weak_algo": row["weak_algo"],
+            "not_before": row["not_before"],
+            "nb_host": row["nb_host"],
+            "fingerprint": row["fingerprintSHA256"],
         }
         certificates.append(certificate)
     return jsonify({"status": "success", "certificates": certificates})
@@ -70,7 +78,8 @@ def view_host(host, port):
     cursor = db.cursor()
 
     cursor.execute(
-        """ SELECT date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern
+        """ SELECT date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, 
+            mozilla_old, mozilla_intermediate, mozilla_modern, fingerprintSHA256
             FROM hosts h
                    WHERE host = ? AND port = ?
                    ORDER BY date DESC
@@ -96,6 +105,7 @@ def view_host(host, port):
             "certificate_serial_number": [
                 f"{c}" for c in json.loads(row["certificate_serial_number"])
             ],
+            "certificate_fingerprint": json.loads(row["fingerprintSHA256"]),
         }
         scans.append(scan)
     return jsonify({"status": "success", "host": host, "port": port, "scans": scans})
@@ -108,7 +118,9 @@ def list_hosts():
 
     cursor = db.cursor()
     cursor.execute(
-        """ SELECT date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern
+        """ SELECT date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, 
+            certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern,
+            fingerprintSHA256
             FROM hosts h
             INNER JOIN  last_scan s
             ON  h.scan_id = s.scan_id AND h.host = s.host AND h.port = s.port
@@ -131,6 +143,7 @@ def list_hosts():
             "moz_intermediate": json.loads(row["mozilla_intermediate"]),
             "moz_modern": json.loads(row["mozilla_modern"]),
             "certificate_serial_number": json.loads(row["certificate_serial_number"]),
+            "certificate_fingerprint": json.loads(row["fingerprintSHA256"]),
         }
         hosts.append(host)
     return jsonify({"status": "success", "hosts": hosts})
@@ -143,9 +156,10 @@ def view_certificate(cert_id):
 
     cursor = db.cursor()
     cursor.execute(
-        """SELECT c.date as last_scan, serial_number, subject, public_key_type, not_after, weak_algo  
+        """SELECT c.date as last_scan, serial_number, subject, public_key_type, not_after, weak_algo, fingerprintSHA256,
+                    not_before
                    FROM certificates c INNER JOIN last_scan s ON c.scan_id = s.scan_id
-                   WHERE serial_number = ?
+                   WHERE fingerprintSHA256 = ?
                    """,
         (cert_id,),
     )
@@ -156,12 +170,14 @@ def view_certificate(cert_id):
         "subject": row["subject"],
         "public_key_type": row["public_key_type"],
         "not_after": row["not_after"],
-        "weak_algo": row["weak_algo"],
+        "fingerprint": row["fingerprintSHA256"],
+        "not_before": row["not_before"],
     }
     cursor.execute(
-        """SELECT h.date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern
+        """SELECT h.date as last_scan, h.host, h.port, sslv2, sslv3, tls1_0, tls1_1, tls1_2, tls1_3, 
+                   certificate_serial_number, mozilla_old, mozilla_intermediate, mozilla_modern, fingerprintSHA256
                    FROM hosts h 
-                   WHERE certificate_serial_number like ?
+                   WHERE fingerprintSHA256 like ?
                    ORDER BY h.date ASC
                    """,
         (f'%"{cert_id}"%',),
@@ -183,6 +199,7 @@ def view_certificate(cert_id):
             "moz_intermediate": json.loads(row["mozilla_intermediate"]),
             "moz_modern": json.loads(row["mozilla_modern"]),
             "certificate_serial_number": json.loads(row["certificate_serial_number"]),
+            "certificate_fingerprint": json.loads(row["fingerprintSHA256"]),
         }
         hosts.append(host)
     return jsonify(
