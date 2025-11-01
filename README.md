@@ -18,3 +18,10 @@ uses sslyze from https://github.com/nabla-c0d3/sslyze to scan and analyse TLS an
 # status
 
 in development, PR, Bug Reports, improvement proposal welcomed.
+
+# installation
+
+```
+uv run build-client
+uv run tomlscript waitress
+```
