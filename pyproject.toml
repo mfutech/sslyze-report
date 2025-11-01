@@ -8,6 +8,8 @@ dependencies = [
     "sslyze>=6.2.0,<7",
     "Flask>=3.1.2,<4",
     "flask-cors>=6.0.1,<7",
+    "waitress>=3.0.2",
+    "tomlscript>=0.2.1",
 ]
 
 [dependency-groups]
@@ -19,3 +21,10 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 package = false
+
+[tool.tomlscript]
+
+build-client = "cd client; npm run build"
+waitress = 'uv run waitress-serve --port={port:5000} app:app'
+scan = 'uv run python scan.py'
+update-last-scan = 'sqlite3  data/sslyze_report.db < tools/update_last_scan.sql'

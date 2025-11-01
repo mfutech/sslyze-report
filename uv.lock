@@ -265,6 +265,8 @@ dependencies = [
     { name = "flask" },
     { name = "flask-cors" },
     { name = "sslyze" },
+    { name = "tomlscript" },
+    { name = "waitress" },
 ]
 
 [package.metadata]
@@ -272,6 +274,8 @@ requires-dist = [
     { name = "flask", specifier = ">=3.1.2,<4" },
     { name = "flask-cors", specifier = ">=6.0.1,<7" },
     { name = "sslyze", specifier = ">=6.2.0,<7" },
+    { name = "tomlscript", specifier = ">=0.2.1" },
+    { name = "waitress", specifier = ">=3.0.2" },
 ]
 
 [package.metadata.requires-dev]
@@ -284,6 +288,27 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/45/30/65aaec6bc1b8959a7e80d1f65b2b461353c206e04bb13f6fee74da5fbda2/tls_parser-2.0.2.tar.gz", hash = "sha256:fc9c1c4bcb646317bf0f1a9396bad1423346a445fd34a86ccc6c3a7e434ebde3", size = 20789, upload-time = "2025-04-06T15:49:09.575Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/df/d2/0f01a02d9083047b8c16ac896c6eea5db58678ec929735dc34cd8a7cbab9/tls_parser-2.0.2-py3-none-any.whl", hash = "sha256:67621c6afa721c7afdb9c50d3c38119f22c9c1b93823af27e05a78e3a6fd0e5e", size = 11863, upload-time = "2025-04-06T20:53:45.488Z" },
+]
+
+[[package]]
+name = "tomli"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/ed/3f73f72945444548f33eba9a87fc7a6e969915e7b1acc8260b30e1f76a2f/tomli-2.3.0.tar.gz", hash = "sha256:64be704a875d2a59753d80ee8a533c3fe183e3f06807ff7dc2232938ccb01549", size = 17392, upload-time = "2025-10-08T22:01:47.119Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/77/b8/0135fadc89e73be292b473cb820b4f5a08197779206b33191e801feeae40/tomli-2.3.0-py3-none-any.whl", hash = "sha256:e95b1af3c5b07d9e643909b5abbec77cd9f1217e6d0bca72b0234736b9fb1f1b", size = 14408, upload-time = "2025-10-08T22:01:46.04Z" },
+]
+
+[[package]]
+name = "tomlscript"
+version = "0.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tomli" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/07/f4/d355dbd500e73e84b527f4d60396fa1152433fbacd881abb753ebb43b5e9/tomlscript-0.2.1.tar.gz", hash = "sha256:6e66536d9e56738680649f6e0404504a40d64f8e61459096e2a74d16f526405d", size = 43111, upload-time = "2024-10-30T13:55:34.52Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/28/bc/d5e1b9a1e6b554d7166de8a45f07dabd857aa9a2f559bac59df793646d79/tomlscript-0.2.1-py3-none-any.whl", hash = "sha256:9746e4488c1dfb50e6056105bea2d0c0267d3404b47896c6d134755e0c5df692", size = 7449, upload-time = "2024-10-30T13:55:33.483Z" },
 ]
 
 [[package]]
@@ -305,6 +330,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/55/e3/70399cb7dd41c10ac53367ae42139cf4b1ca5f36bb3dc6c9d33acdb43655/typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464", size = 75949, upload-time = "2025-10-01T02:14:41.687Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dc/9b/47798a6c91d8bdb567fe2698fe81e0c6b7cb7ef4d13da4114b41d239f65d/typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7", size = 14611, upload-time = "2025-10-01T02:14:40.154Z" },
+]
+
+[[package]]
+name = "waitress"
+version = "3.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/bf/cb/04ddb054f45faa306a230769e868c28b8065ea196891f09004ebace5b184/waitress-3.0.2.tar.gz", hash = "sha256:682aaaf2af0c44ada4abfb70ded36393f0e307f4ab9456a215ce0020baefc31f", size = 179901, upload-time = "2024-11-16T20:02:35.195Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8d/57/a27182528c90ef38d82b636a11f606b0cbb0e17588ed205435f8affe3368/waitress-3.0.2-py3-none-any.whl", hash = "sha256:c56d67fd6e87c2ee598b76abdd4e96cfad1f24cacdea5078d382b1f9d7b5ed2e", size = 56232, upload-time = "2024-11-16T20:02:33.858Z" },
 ]
 
 [[package]]
