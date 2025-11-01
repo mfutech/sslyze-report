@@ -6,6 +6,7 @@ from email.mime import message
 import sqlite3
 import argparse
 import json
+import re
 
 CONFIGFILE = "config.ini"
 DEFAULT_DB = "data/sslyze_report.db"
@@ -49,7 +50,7 @@ from certificates c
         join hosts h on ( INSTR(h.fingerprintSHA256, c.fingerprintSHA256) > 0 )
         join last_scan s on (s.scan_id = h.scan_id and s.host = h.host and s.port = h.port)
 
-group by c.date, c.serial_number, c.fingerprintSHA256, c.subject, c.public_key_type, c.not_after
+group by c.serial_number, c.fingerprintSHA256, c.subject, c.public_key_type, c.not_after
 order by nb_host DESC
 """
     )
@@ -72,6 +73,10 @@ order by nb_host DESC
 
 @app.route("/api/host/<host>/<port>", methods=["GET"])
 def view_host(host, port):
+
+    host = sanize_input(host)
+    port = sanize_input_int(port)
+
     db = sqlite3.connect(db_filename)
     db.row_factory = sqlite3.Row
 
@@ -151,6 +156,9 @@ def list_hosts():
 
 @app.route("/api/certificate/<cert_id>", methods=["GET"])
 def view_certificate(cert_id):
+
+    cert_id = sanize_input(cert_id)
+
     db = sqlite3.connect(db_filename)
     db.row_factory = sqlite3.Row
 
@@ -216,6 +224,20 @@ def view_certificate(cert_id):
 @app.route("/api/ping", methods=["GET"])
 def ping_pong():
     return jsonify("pong!")
+
+
+def sanize_input(input_str):
+    # Simple sanitization keep only ascii aplhabetic, numeric, dot and dash characters
+    res = input_str.encode("ascii", "ignore").decode("ascii")
+    res = re.sub(r"[^0-9A-Za-z.-]", "", res)
+    return res
+
+
+def sanize_input_int(input_str):
+    # Simple sanitization keep only numeric
+    res = input_str.encode("ascii", "ignore").decode("ascii")
+    res = re.sub(r"[^0-9]", "", res)
+    return res
 
 
 if __name__ == "__main__":
