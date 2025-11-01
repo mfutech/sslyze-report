@@ -132,8 +132,7 @@ def main() -> None:
             # Since we were able to run the scan, scan_result is populated
             assert server_scan_result.scan_result
 
-
-            try: # section protect against exception until error handling is better
+            try:  # section protect against exception until error handling is better
                 # Analyze TLS results
                 tls_scanner = TlsAnalyser()
                 tls_result = tls_scanner.analyze_results(server_scan_result)
@@ -160,7 +159,9 @@ def main() -> None:
                 db.commit()
 
                 host_analyser = HostAnalyser()
-                host_info, certs_info = host_analyser.analyze_results(server_scan_result)
+                host_info, certs_info = host_analyser.analyze_results(
+                    server_scan_result
+                )
 
                 # list of certificates serial numbers, as string to avoir conversion issues
                 cert_serial_numbers = [f"{c.serial_number}" for c in certs_info]
@@ -234,7 +235,7 @@ def main() -> None:
                                 "issues": host_info.moz_tls_modern.issues,
                             }
                         ),
-                        json.dumps(cert_fingerprintSHA256)
+                        json.dumps(cert_fingerprintSHA256),
                     ),
                 )
                 db.commit()
@@ -246,7 +247,7 @@ def main() -> None:
                     db.execute(
                         """INSERT INTO certificates 
                                 (serial_number, subject, public_key_type, not_after, parent_certificate_serial_number, issuer, 
-                                scan_id, not_valid_before, fingerprintSHA256) 
+                                scan_id, not_before, fingerprintSHA256) 
                                 VALUES 
                                 (?            , ?      , ?              , ?        , ?                               , ?     ,
                                 ?      , ?               , ?)""",
@@ -259,7 +260,7 @@ def main() -> None:
                             cert_result.issuer,
                             SCANID,
                             cert_result.not_valid_before,
-                            cert_result.fingerprintSHA256
+                            cert_result.fingerprintSHA256,
                         ),
                     )
                     db.commit()
@@ -285,7 +286,7 @@ def main() -> None:
                 host = server_scan_result.server_location.hostname
                 port = server_scan_result.server_location.port
                 print(f"scan {host}:{port} exception:  {str(e)}")
-                db_log_err.log (str(e), host = host, port = port)
+                db_log_err.log(str(e), host=host, port=port)
                 continue
     error_log.close()
     db.close()
