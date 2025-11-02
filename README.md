@@ -21,7 +21,32 @@ in development, PR, Bug Reports, improvement proposal welcomed.
 
 # installation
 
+## pre-requisite
 ```
+install sqlite3 if not present
+```
+
+## installation
+```
+clone repo
+cd repo
+cp config.ini.example config.ini
+customize section hostlist
+cd client
+fnm use ## or you prefered node version manager
+npm install
+cd ..
+./db_migration.bash
 uv run build-client
 uv run tomlscript waitress
+```
+
+## runing a scan
+
+otherwise you will not ave much data
+
+make sure te config.ini hostlist section is populated with the host you want to monitor
+
+```
+uv run python scan.py
 ```
