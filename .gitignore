@@ -157,11 +157,6 @@ pnpm-debug.log*
 # actual config files
 config.ini
 
-
-# data files
-data/*
-!data
-
 # Logs
 logs
 *.log
