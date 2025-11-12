@@ -1,15 +1,17 @@
 <script>
 import axios from 'axios';
 import * as bootstrap from 'bootstrap';
+import jszip from 'jszip';
 import DataTable from 'datatables.net-vue3'
 import DataTablesCore from 'datatables.net-bs5';
 import 'datatables.net-responsive';
 import 'datatables.net-select';
+import 'datatables.net-buttons-bs5';
 import MenuHeader from '../components/MenuHeader.vue';
 
 
-
 DataTablesCore.use(bootstrap);
+DataTablesCore.Buttons.jszip(jszip);
 DataTable.use(DataTablesCore);
 
 console.log('DataTablesCore:', DataTablesCore);
@@ -25,15 +27,20 @@ export default {
       options: {
         responsive: true,
         select: true,
+        layout: {
+          topStart: {
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+          }
+        },
       },
-      order: [[0, 'asc']],
       columns: [
         { title: 'Date', data: 'date' },
         { title: 'Not After', data: 'not_after' },
         { title: 'Not Before', data: 'not_before' },
         { title: 'Public Key Type', data: 'public_key_type' },
         {
-          title: 'Fingerprint', data: 'fingerprint', "render": function (data, type, row, meta) {
+          // eslint-disable-next-line no-unused-vars
+          title: 'Fingerprint', data: 'fingerprint', "render": function (data, type, _row, meta) {
             if (type === 'display') {
               let data_display = data.substring(0, 10) + '...' + data.substring(data.length - 10);
               data = '<a class="btn btn-primary" href="/certificate/' + data + '">' + data_display + '</a>';
