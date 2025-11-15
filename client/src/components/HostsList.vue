@@ -7,15 +7,17 @@ import * as bootstrap from 'bootstrap';
 import jszip from 'jszip';
 import DataTable from 'datatables.net-vue3'
 import DataTablesCore from 'datatables.net-bs5';
-import 'datatables.net-buttons-bs5';
+import Buttons from 'datatables.net-buttons-bs5';
 import 'datatables.net-buttons/js/buttons.html5.mjs';
-import 'datatables.net-responsive';
-import 'datatables.net-select';
-import 'datatables.net-buttons-bs5';
+import 'datatables.net-searchpanes-bs5';
+ 
 
+
+window.JSZip = jszip; // or globalThis.JSZip = JSZip;
 
 DataTablesCore.use(bootstrap);
-DataTablesCore.Buttons.jszip(jszip);
+Buttons.use(bootstrap);
+DataTablesCore.use(Buttons);
 DataTable.use(DataTablesCore);
 
 console.log('DataTablesCore:', DataTablesCore);
@@ -139,7 +141,7 @@ export default {
                 let fingerprint_disp = fingerprint.length > 18 ? fingerprint.substr(0, 15) + '...' : fingerprint;
                 return '<a class="btn btn-primary" href="/certificate/' + fingerprint + '">' + fingerprint_disp + '</a><br>';
               });
-              data = output;
+              return output;
             }
             return data;
           }
